@@ -1,0 +1,92 @@
+'use strict';
+const Service = require('egg').Service;
+
+class UserService extends Service {
+  async login(param) {
+    const results = await this.app.mysql.get('fe_user', param);
+    const data = new this.ctx.helper.Ajaxresult();
+    const { ctx } = this;
+    ctx.cookies.set('userId', results.id);
+    return data.successFn(results);
+  }
+  async reg(param) {
+    param.reg_time = this.app.mysql.literals.now;
+    param.host = this.ctx.helper.getIp(this.ctx.request);
+    const results = await this.app.mysql.insert('fe_user', param);
+    this.ctx.cookies.set('userId', results.insertId);
+    const data = new this.ctx.helper.Ajaxresult();
+    return data.successFn(results);
+  }
+  async info() {
+    const results = await this.app.mysql.get('fe_user', {
+      id: this.ctx.cookies.get('userId'),
+    });
+    const data = new this.ctx.helper.Ajaxresult();
+    if (!results) {
+      return data.fail();
+    }
+    return data.successFn(results);
+  }
+
+  // 创建历史
+  async createHistory(params) {
+    const { start, size } = params;
+    console.log(start, size, '======');
+    console.log(typeof this.ctx.cookies.get('userId'), '=====userId');
+    const user_id = this.ctx.cookies.get('userId');
+    const results = await this.app.mysql.select('fe_history', {
+      where: { user_id, operation: [ 'create' ] },
+      limit: Number(size),
+      offset: Number(start),
+    });
+    const total = await this.app.mysql.select('fe_history', {
+      where: { user_id, operation: [ 'create' ] },
+    });
+    const data = new this.ctx.helper.Ajaxresult();
+    return data.successFn({
+      list: results,
+      total: total.length,
+    });
+  }
+
+  // 收藏历史
+  async collectHistory(params) {
+    const { start, size } = params;
+    const user_id = this.ctx.cookies.get('userId');
+
+    const results = await this.app.mysql.select('fe_history', {
+      where: { user_id, operation: [ 'collect', 'cancel' ] },
+      limit: Number(size),
+      offset: Number(start),
+    });
+    const total = await this.app.mysql.select('fe_history', {
+      where: { user_id, operation: [ 'collect', 'cancel' ] },
+    });
+    const data = new this.ctx.helper.Ajaxresult();
+    return data.successFn({
+      list: results,
+      total: total.length,
+    });
+  }
+
+  // 操作历史
+  async operationHistory(params) {
+    const { start, size } = params;
+    const results = await this.app.mysql.select('fe_history', {
+      where: { user_id: this.ctx.cookies.get('userId') },
+      limit: Number(size),
+      offset: Number(start),
+    });
+    const total = await this.app.mysql.select('fe_history', {
+      where: { user_id: this.ctx.cookies.get('userId') },
+    });
+
+    const data = new this.ctx.helper.Ajaxresult();
+    return data.successFn({
+      list: results,
+      total: total.length,
+    });
+  }
+}
+module.exports = UserService;
+
