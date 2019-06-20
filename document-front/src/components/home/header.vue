@@ -1,8 +1,8 @@
 <template>
   <el-header>
-    <el-row>
+    <el-row class="layout">
       <el-col :span="4" @click="backHome"><div class="grid-content fe-title">FE-DOC</div></el-col>
-      <el-col :span="20">
+      <el-col :span="20" class="fe-headerRight">
         <el-menu 
           :default-active="activeIndex" 
           class="el-menu-demo" 
@@ -18,12 +18,12 @@
               :index="index+''"
               @click="changeList(item)">{{item.title}}</el-menu-item>
           </template>
-          <el-menu-item index="6">
-            <input type="search" class="fe-search" v-model="keywords">
+          <el-menu-item :index="this.projectList.length+1+''">
+            <input type="search" class="fe-search" v-model="keywords" placeholder="search(还没开发)">
             <i class="el-icon-search" @click="searchFn"></i>
           </el-menu-item>
           <template v-if="isLogin">
-            <el-menu-item>
+            <el-menu-item class="fe-username" :index="this.projectList.length+2+''">
               <a href="/user">
                 <i class="el-icon-user-solid"></i>
                 <span>{{userName}}</span>
@@ -54,7 +54,8 @@ export default {
       // activeIndex: '0', // 必须是字符串
       keywords: '',
       userName:'',
-      isLogin: false
+      isLogin: false,
+      len: 0
     }
   },
   computed: {
@@ -81,16 +82,23 @@ export default {
       getFirstList().then(({success,result,msg})=>{
         if(success) {
           this.projectList = result
-          let {id, title} = result[0]
-          result.map(item=>{
-            item.label = item.name
-            item.value = item.id
+          // 排序使用
+          this.len = this.projectList.length
+          // 格式化
+          result.map((item,index)=>{
+            item.label = item.title
+            item.index = index
+            // item.value = item.id
           })
+          // 存储一级列表相关
+          let {id, title} = result[0]
           this.updateData({
             firstId: id,
             firstTitle: title,
-            firstList: result
+            firstList: result,
+            activeIndex_first: '0'
           })
+          // 触发二级列表
           this.$store.dispatch('getSecondListFn')
         }else {
           this.$message.error( msg );
@@ -161,13 +169,13 @@ export default {
   height: 60px;
 }
 .el-row {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
+  // position: fixed;
+  // top: 0;
+  // left: 0;
+  // width: 100%;
   height: 60px;
   overflow: hidden;
-  padding-left:20px ;
+  // padding-left:20px ;
   .fe-title {
     font-size: 24px;
     font-weight: bold;
@@ -185,9 +193,17 @@ export default {
   line-height: 30px;
   border-radius: 4px;
   outline: none;
-  border: 1px solid rgba(0,0,0,.1)
+  border: 1px solid rgba(0,0,0,.1);
+  padding: 0 10px;
 }
 a {
   text-decoration: none;
+}
+.fe-username{
+  margin-right: 20px !important;
+}
+.fe-headerRight ul{
+  // justify-content: flex-end;
+  text-align: right;
 }
 </style>

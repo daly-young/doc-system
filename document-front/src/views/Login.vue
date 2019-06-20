@@ -1,51 +1,30 @@
 <template>
   <el-container class="login">
     <el-header>fe-document</el-header>
-    <el-main v-if="isLogin">
-      <div class="login__main">
-        <p>
-          <span>用户名：</span>
-          <el-input
-            placeholder="请输入用户名"
-            v-model="user_name"
-            clearable>
-          </el-input>
-        </p>
-        <p>
-          <span>密码：</span>
-          <el-input placeholder="请输入密码" v-model="password" show-password></el-input>
-        </p>
-        <el-button type="primary" @click="doLogin">登录</el-button>
-        <el-link type="primary" @click="switchFn">注册</el-link>
-      </div>
-    </el-main>
-    <el-main v-else>
-      <div class="login__main">
-        <p>
-          <span>用户名：</span>
-          <el-input
-            placeholder="请输入用户名"
-            v-model="user_name"
-            clearable>
-          </el-input>
-        </p>
-        <p>
-          <span>密码：</span>
-          <el-input placeholder="请输入密码" v-model="password" show-password></el-input>
-        </p>
-        <p>
-          <span>邮箱：</span>
-          <el-input
+    <el-form :model="infos" :rules="rules" label-width="100px" inline-message>
+      <el-form-item label="用户名" prop="user_name">
+        <el-input
+          placeholder="请输入用户名"
+          v-model="infos.user_name"
+          clearable>
+        </el-input>
+      </el-form-item>
+      <el-form-item label="密码" prop="password">
+        <el-input placeholder="请输入密码" v-model="infos.password" show-password></el-input>
+      </el-form-item>
+      <el-form-item label="邮箱" prop="email" v-if="!isLogin">
+        <el-input
             placeholder="请输入邮箱"
-            v-model="email"
+            v-model="infos.email"
             clearable>
           </el-input>
-        </p>
-        <el-button type="primary" @click="doReg">注册</el-button>
-        <el-link type="primary" @click="switchFn">登录</el-link>
-      </div>
-    </el-main>
-    <el-footer>Footer</el-footer>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="doLoginOrReg">{{isLogin?'登录':'注册'}}</el-button>
+        <el-link type="primary" @click="switchFn">{{isLogin?'注册':'登录'}}</el-link>
+      </el-form-item>
+    </el-form>
+    <!-- <el-footer>Footer</el-footer> -->
   </el-container>
 </template>
 <script>
@@ -55,6 +34,43 @@ export default {
   name: 'login',
   data() {
     return {
+      infos: {
+        user_name: '',
+        password: '',
+        email: '',
+      },
+      rules: {
+        user_name: [
+          { 
+            required: true, 
+            message: '请输入名称', 
+            trigger: 'blur',
+            // validator: (rule,value,callback) =>{
+            //   let canPass =  /^[a-zA-Z]$/.test(value)
+            //   if(!canPass)callback(new Error('请输入名称'));
+            // }
+          },
+        ],
+        password:[{
+          required: true, 
+          message: '请输入密码', 
+          trigger: 'blur',
+        },{ 
+          min: 6, 
+          max: 12, 
+          message: '长度在 6 到 12 个字符', 
+          trigger: 'blur' 
+        }],
+        email: [{
+          required: true, 
+          // message: '请输入邮箱', 
+          trigger: 'blur',
+          validator: (rule,value,callback) =>{
+              let canPass =  /^[a-zA-Z0-9][\w.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\w.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z.]*[a-zA-Z]$/.test(value)
+              if(!canPass)callback(new Error('请输入正确的邮箱'));
+            }
+        }]
+      },
       isLogin: true,
       user_name:'',
       password: '',
@@ -67,21 +83,32 @@ export default {
     switchFn() {
       this.isLogin = !this.isLogin
     },
+    doLoginOrReg() {
+      if(this.isLogin) {
+        this.doLogin()
+      }else {
+        this.doReg()
+      }
+    },
     doLogin() {
-      let {user_name, password} = this
+      let {user_name, password} = this.infos
       userLogin({
         user_name,
         password
       }).then(({success, msg})=>{
         if(success) {
-          this.$router.push('/')
+          if(this.backUrl) {
+            // window.location.href = this.backUrl
+          }else {
+            // this.$router.push('/')
+          }
         } else {
           this.$message.error(msg);
         }
       })
     },
     doReg() {
-      let {user_name, password, email} = this
+      let {user_name, password, email} = this.infos
       userReg({
         user_name,
         password,
@@ -91,7 +118,7 @@ export default {
           if(this.backUrl) {
             window.location.href = this.backUrl
           }else {
-            this.$router.push('/user')
+            // this.$router.push('/')
           }
         } else {
           this.$message.error(msg);
@@ -114,47 +141,27 @@ export default {
   font-size: 30px;
 }
 
-.el-main {
-  color: #333;
+.el-button {
+  display: block;
+  width: 500px;
+  margin-bottom: 10px;
 }
-.el-container {
+
+.login {
   padding-top: 0;
 }
-.login {
-  &__main {
-    // background-color: #ddd;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
-    width: 500px;
-    // height: 200px;
-    padding: 20px;
-    border-radius: 4px;
-    p {
-      margin-bottom: 40px;
-    }
-    span {
-      display: inline-block;
-      width: 100px;
-      text-align-last: left;
-    }
-    .el-input {
-      display: inline-block;
-      width: 400px;
-    }
-    .el-button {
-      display: block;
-      width: 500px;
-      margin-bottom: 10px;
-    }
-    .el-link {
-      display: block;
-      width: 100px;
-      text-align: center;
-      line-height: 30px;
-      margin: 0 auto;
-    }
-  }
+.el-link {
+  display: block;
+  width: 100px;
+  text-align: center;
+  line-height: 30px;
+  margin: 0 auto;
+}
+.el-form {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 600px;
 }
 </style>

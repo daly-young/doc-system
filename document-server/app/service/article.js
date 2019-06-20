@@ -1,5 +1,6 @@
 'use strict';
 const Service = require('egg').Service;
+// const { transliterate, slugify } = require('transliteration');
 
 class ArticleService extends Service {
   async create(params) {
@@ -10,6 +11,7 @@ class ArticleService extends Service {
       article_name: params.title,
       user_id: this.ctx.cookies.get('userId'),
       create_time: this.app.mysql.literals.now,
+      modify_time: this.app.mysql.literals.now,
     });
     const success = result.affectedRows === 1;
 
@@ -54,7 +56,6 @@ class ArticleService extends Service {
       user_id: this.ctx.cookies.get('userId'),
       user_name: 'daly_3',
       modify_time: this.app.mysql.literals.now,
-      // modify_time: this.app.mysql.literals.date_format(this.app.mysql.literals.now, '%y-%m-%d'),
     });
     const success = result.affectedRows === 1;
 
@@ -77,10 +78,8 @@ class ArticleService extends Service {
   }
   async getcontent(param) {
     const result = await this.app.mysql.get('fe_article', param);
-    const isCollect = await this.app.mysql.get('fe_history', {
-      // user_id: this.ctx.cookies.get('userId'),
+    const isCollect = await this.app.mysql.get('fe_collect', {
       article_id: param.id,
-      operation: 'collect',
     });
     const data = new this.ctx.helper.Ajaxresult();
     if (result) {

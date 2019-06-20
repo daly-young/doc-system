@@ -30,7 +30,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .el-main {
-  height: 90%;
+  height: 100%;
   overflow-y: auto;
 }
 .el-table__header {

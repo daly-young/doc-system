@@ -5,6 +5,12 @@ class UserService extends Service {
   async login(param) {
     const results = await this.app.mysql.get('fe_user', param);
     const data = new this.ctx.helper.Ajaxresult();
+    if (!results) {
+      return data.fail({
+        code: 10007,
+        msg: '用户不存在，请检查~',
+      });
+    }
     const { ctx } = this;
     ctx.cookies.set('userId', results.id);
     return data.successFn(results);

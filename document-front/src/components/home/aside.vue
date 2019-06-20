@@ -1,5 +1,5 @@
 <template>
-  <el-aside width="300px">
+  <el-aside width="200px">
     <el-menu background-color="transparent" text-color="#999" active-text-color="#409EFF" :default-active="activeIndex" menu-trigger="click">
       <el-menu-item :index="item.article_id.toString()" v-for="item in secondList" :key="item.article_id" @click="getArticle(item)">{{item.name}}</el-menu-item>
     </el-menu>
@@ -8,8 +8,6 @@
 
 <script>
 import { mapState, mapMutations } from 'vuex'
-// import { mapState, mapMutations, mapActions} from 'vuex'
-// import { getSecondList } from '@/assets/js/api'
 export default {
   name: 'HelloWorld',
   props: {
@@ -23,22 +21,9 @@ export default {
   },
   computed:{
     ...mapState({
-      // firstId: state => state.firstId,
-      // curId: state => state.curId,
       secondList: state => state.secondList,
       activeIndex: state => state.activeIndex_second,
-      // fromCreate: state => state.fromCreate,
     })
-  },
-  watch:{
-    // firstId(newVal) {
-    //   if(newVal) {
-    //     this.init()
-    //   }
-    // }
-  },
-  created() {
-    // this.init()
   },
   methods: {
     ...mapMutations([
@@ -60,7 +45,7 @@ export default {
 .el-aside {
   height: 100%;
   overflow-y: auto;
-  padding-left: 50px;
+  // padding-left: 50px;
 }
 .el-menu {
   text-align: left;
@@ -68,5 +53,8 @@ export default {
   :hover {
     background-color: #fff!important;
   }
+}
+.el-menu-item {
+  padding-left: 0!important;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-<el-container>
+<el-container class="layout">
   <fe-header></fe-header>
   <el-container>
     <fe-aside></fe-aside>

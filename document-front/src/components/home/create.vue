@@ -11,19 +11,9 @@
           change-on-select
           @change="chooseVal"
           ref="cascaderLabels"
+          :popper-class="'fe-cascader'"
         ></el-cascader>
       </div>
-      <!-- <div class="fe-create-input">
-        <span>创建下一级目录：</span>
-        <el-input
-          placeholder="请输入内容"
-          v-model="input4">
-        </el-input>
-        <el-button type="primary" size="middle">创建</el-button>
-      </div>
-      <h4>
-        <span v-for="(item, index) in currentLabels" :key="index">{{item}} ></span>
-      </h4> -->
       <div class="fe-create-input">
         <span>文章名称：</span>
         <el-input
@@ -53,6 +43,7 @@ export default {
     })
   },
   mounted(){
+    console.log(this.list)
   },
   methods:{
     ...mapMutations([
@@ -62,13 +53,14 @@ export default {
       'getSecondListFn'
     ]),
     chooseVal(val) {
-      this.selectId = val[0]
+      this.selectObj = this.list.find((item)=>item.value == val[0])
     },
     createFn() {
       if(!this.articleTitle) return
+      let {id,index} = this.selectObj
       articleCreate({
         title: this.articleTitle,
-        parent_id:this.selectId
+        parent_id: id
       }).then(({success, result, msg})=>{
         if(success) {
           // 切换面板
@@ -76,8 +68,8 @@ export default {
           // 存储curId
           // 关闭创建面板
           this.updateData({
-            firstId: this.selectId,
-            activeIndex_first: this.selectId.toString(),
+            firstId:  id,
+            activeIndex_first: index.toString(),
             createShow: false,
             switchEditor: true,
             curId: result.id,

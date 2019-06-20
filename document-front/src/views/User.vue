@@ -1,5 +1,5 @@
 <template>
-<el-container class="user">
+<el-container class="user layout">
   <!-- 头部 -->
   <user-header></user-header>
   <el-container class="user__bd">
@@ -36,10 +36,13 @@ export default {
 </script>
 <style lang="scss">
 .user {
-  padding-top: 160px!important;
+  padding-top: 0!important;
+  flex-wrap: wrap;
   &__bd {
     flex-wrap: nowrap;
     background-color: #E9EEF3;
+    height: 70%;
+    overflow: hidden;
   }
   &__content {
     flex-wrap: wrap;

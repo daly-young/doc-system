@@ -63,6 +63,7 @@ export default {
     collectFn() {
       articleCollect({
         id: this.curId,
+        name: this.secondTitle,
       }).then(({success, msg})=>{
         if(success) {
           let data = JSON.parse(JSON.stringify(this.curItem))
@@ -79,7 +80,7 @@ export default {
     cancelFn() {
       articleCollectCancel({
         id: this.curId,
-        userId: 1
+        name: this.secondTitle,
       }).then(({success, msg})=>{
         if(success) {
           let data = JSON.parse(JSON.stringify(this.curItem))
@@ -98,7 +99,7 @@ export default {
 
 <style lang="scss" scoped>
 .el-main {
-  padding-top: 60px;
+  // padding-top: 60px;
   height: 100%;
   position: relative;
   padding-right: 50px;
@@ -106,6 +107,7 @@ export default {
 .markdown-body {
   // height: 100%;
   padding: 20px;
+  padding-left: 0;
 }
 .fe-icon-star-on{
   color: orange!important;
@@ -114,16 +116,16 @@ export default {
   position: fixed;
   right: 20px;
   top: 80px;
-  z-index: 9999;
+  z-index: 999;
 }
 
 .breadcrumbBox {
-  position: fixed;
-  top: 60px;
-  left: 340px;
-  width: 100%;
+  // position: absolute;
+  // top: 0;
+  // left: 0;
+  // width: 100%;
   background-color:rgba(255,255,255,.95);
-  z-index: 9999;
+  // z-index: 9999;
   overflow: hidden;
   padding: 20px 0;
 }

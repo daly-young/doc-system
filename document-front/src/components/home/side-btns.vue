@@ -2,7 +2,7 @@
   <div>
     <el-button type="primary" icon="el-icon-edit" plain circle class="fe-button-edit" @click="switchFn"></el-button>
     <fe-history></fe-history>
-    <el-button type="danger" icon="el-icon-delete" plain circle class="fe-button-delete" @click="deleteFn"></el-button>
+    <el-button type="danger" icon="el-icon-delete" plain circle class="fe-button-delete" @click="showDialog"></el-button>
   </div>
 </template>
 <script>
@@ -25,6 +25,24 @@ export default {
     ...mapActions([
       'getSecondListFn',
     ]),
+    showDialog() {
+      this.$confirm('确定要删除该文章?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          // this.$message({
+          //   type: 'success',
+          //   message: '删除成功!'
+          // });
+          this.deleteFn()
+        }).catch(() => {
+          // this.$message({
+          //   type: 'info',
+          //   message: '已取消删除'
+          // });          
+        });
+    },
     deleteFn() {
       articleDelete({
         id: this.curId
