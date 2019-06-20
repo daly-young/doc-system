@@ -11,7 +11,12 @@ module.exports = appInfo => {
    * @type {Egg.EggAppConfig}
    **/
   const config = exports = {};
-
+  config.cluster = {
+    listen: {
+      port: 7001,
+      hostname: '0.0.0.0',
+    },
+  };
   // use for cookie sign key, should change to your own and keep security
   config.keys = appInfo.name + '_1557815651439_2403';
 
