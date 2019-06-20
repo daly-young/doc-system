@@ -1,9 +1,13 @@
 <template>
   <div class="fe-create">
     <i class="el-icon-circle-close" @click="closeFn"></i>
+    <template>
+
+    </template>
+    <template></template>
     <div class="fe-create-content">
       <div class="fe-create-input">
-        <span>选择层级：</span>
+        <span>一级目录：</span>
         <el-cascader
           placeholder="试试搜索：指南"
           :options="list"
@@ -12,7 +16,12 @@
           @change="chooseVal"
           ref="cascaderLabels"
           :popper-class="'fe-cascader'"
-        ></el-cascader>
+          v-if="!toCreate"></el-cascader>
+          <el-input
+          placeholder="请填写一级目录名称"
+          v-model="firstCate"
+          v-else></el-input>
+        <el-link type="primary" size="middle" @click="siwtchFn">{{toCreate?'选择现有目录':'想要创建新目录'}}<i class="el-icon-plus" v-if="!toCreate"></i></el-link>
       </div>
       <div class="fe-create-input">
         <span>文章名称：</span>
@@ -34,7 +43,10 @@ export default {
     return {
       selectId: -1,
       articleTitle:'',
-      currentLabels: []
+      currentLabels: [],
+      toCreate: false,
+      firstCate: '',
+      selectObj: {}
     }
   },
   computed:{
@@ -50,6 +62,7 @@ export default {
       'updateData',
     ]),
     ...mapActions([
+      'getFirstListFn',
       'getSecondListFn'
     ]),
     chooseVal(val) {
@@ -59,24 +72,33 @@ export default {
       if(!this.articleTitle) return
       let {id,index} = this.selectObj
       articleCreate({
+        first_cate: this.firstCate,
         title: this.articleTitle,
-        parent_id: id
+        parent_id: this.toCreate ? -1 : id,
       }).then(({success, result, msg})=>{
         if(success) {
-          // 切换面板
-          // 组装curItem
-          // 存储curId
-          // 关闭创建面板
           this.updateData({
-            firstId:  id,
-            activeIndex_first: index.toString(),
-            createShow: false,
-            switchEditor: true,
-            curId: result.id,
-            fromCreate: true,
-            curItem: {}
-          })
-          this.$store.dispatch('getSecondListFn')
+              createShow: false,
+              switchEditor: true,
+              fromCreate: true,
+              curItem: {},
+              curId: result.id,
+            })
+          if(this.toCreate) {
+            // 刷新一级目录,会自动刷新二级目录
+            this.$store.dispatch('getFirstListFn')
+            // 切换面板
+          }else {
+            // 切换面板
+            // 组装curItem
+            // 存储curId
+            // 关闭创建面板
+            this.updateData({
+              firstId:  id,
+              activeIndex_first: index.toString(),
+            })
+            this.$store.dispatch('getSecondListFn')
+          }
         } else {
             this.$message.error(msg || '创建失败');
         }
@@ -86,6 +108,10 @@ export default {
       this.updateData({
         createShow: false,
       })
+    },
+    siwtchFn() {
+      this.toCreate = !this.toCreate
+      this.selectObj = {}
     }
   }
 }
@@ -125,10 +151,12 @@ export default {
       width: 160px;
     }
     .el-input {
-      width: 60%!important;
+      width: 50%!important;
+      margin-right: 20px;
     }
     .el-cascader {
-      width: 60%;
+      width: 50%;
+      margin-right: 20px;
     }
   }
 }

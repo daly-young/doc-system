@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { getContent, getSecondList, userCreateHistory, userCollectHistory, userOperationHistory } from '@/assets/js/api'
+import { getContent, getFirstList, getSecondList, userCreateHistory, userCollectHistory, userOperationHistory } from '@/assets/js/api'
 
 Vue.use(Vuex)
 
@@ -92,6 +92,35 @@ export default new Vuex.Store({
 
       })
     },
+    getFirstListFn({ commit, state, dispatch }) {
+      // 初始化一级列表数据
+      getFirstList().then(({ success, result, msg }) => {
+        if (success) {
+          // 格式化
+          result.map((item, index) => {
+            item.label = item.title
+            item.index = index.toString()
+          })
+          let obj
+          if (state.fromCreate) {
+            obj = result[result.length - 1]
+          } else {
+            obj = result[0]
+          }
+          // 存储一级列表相关
+          commit('updateData', {
+            firstId: obj.id,
+            firstTitle: obj.label,
+            firstList: result,
+            activeIndex_first: obj.index,
+          })
+          // 触发二级列表
+          dispatch('getSecondListFn')
+        } else {
+          this.$message.error(msg);
+        }
+      })
+    },
     getSecondListFn({ commit, state, dispatch }) {
       getSecondList({
         id: state.firstId
@@ -121,13 +150,11 @@ export default new Vuex.Store({
           return dispatch('getArticle', result[0])
         } else {
           console.log(msg)
-          // this.$message.error(msg);
         }
       })
     },
     getUserHistory({ commit, state }, params) {
       let index = state.user.activeIndex
-      // dispatch('changeUserAside')
       let ajaxFunction = userCreateHistory
       index === 1 && (ajaxFunction = userCollectHistory)
       index === 2 && (ajaxFunction = userOperationHistory)

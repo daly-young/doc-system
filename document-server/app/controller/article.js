@@ -8,8 +8,9 @@ class ArticleController extends Controller {
     const param = ctx.request.body;
     try {
       ctx.validate({
+        // first_cate: { type: 'string', require: false, default: '' },
         title: { type: 'string', require: true },
-        parent_id: { type: 'id', require: true },
+        parent_id: { type: 'string', require: true },
       });
     } catch (err) {
       ctx.logger.warn(err.errors);

@@ -11,19 +11,19 @@
           text-color="#79BBFF"
           active-text-color="#409EFF">
           <template
-            v-for="(item,index) in projectList" 
+            v-for="(item,index) in firstList" 
             :index="index">
             <el-menu-item 
               :key="item.id" 
               :index="index+''"
               @click="changeList(item)">{{item.title}}</el-menu-item>
           </template>
-          <el-menu-item :index="this.projectList.length+1+''">
+          <el-menu-item :index="firstList.length+1+''">
             <input type="search" class="fe-search" v-model="keywords" placeholder="search(还没开发)">
             <i class="el-icon-search" @click="searchFn"></i>
           </el-menu-item>
           <template v-if="isLogin">
-            <el-menu-item class="fe-username" :index="this.projectList.length+2+''">
+            <el-menu-item class="fe-username" :index="firstList.length+2+''">
               <a href="/user">
                 <i class="el-icon-user-solid"></i>
                 <span>{{userName}}</span>
@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { getFirstList, searchAll,userInfo} from '@/assets/js/api'
+import { searchAll,userInfo} from '@/assets/js/api'
 import { mapMutations, mapState, mapActions } from 'vuex'
 export default {
   name: 'feHeader',
@@ -60,7 +60,7 @@ export default {
   },
   computed: {
     ...mapState({
-      // fromCreate: state => state.fromCreate,
+      firstList: state => state.firstList,
       firstId: state => state.firstId,
       activeIndex: state => state.activeIndex_first,
       switchEditor: state => state.switchEditor,
@@ -74,36 +74,12 @@ export default {
       'updateData',
     ]),
     ...mapActions([
+      'getFirstListFn',
       'getSecondListFn',
     ]),
     init() {
       this.getUser()
-      // 初始化一级列表数据
-      getFirstList().then(({success,result,msg})=>{
-        if(success) {
-          this.projectList = result
-          // 排序使用
-          this.len = this.projectList.length
-          // 格式化
-          result.map((item,index)=>{
-            item.label = item.title
-            item.index = index
-            // item.value = item.id
-          })
-          // 存储一级列表相关
-          let {id, title} = result[0]
-          this.updateData({
-            firstId: id,
-            firstTitle: title,
-            firstList: result,
-            activeIndex_first: '0'
-          })
-          // 触发二级列表
-          this.$store.dispatch('getSecondListFn')
-        }else {
-          this.$message.error( msg );
-        }
-      })
+      this.$store.dispatch('getFirstListFn')
     },
     getUser() {
       userInfo().then(({success,result,code,msg})=>{

@@ -1,6 +1,6 @@
 'use strict';
 const Service = require('egg').Service;
-// const { transliterate, slugify } = require('transliteration');
+const { transliterate } = require('transliteration');
 
 class ArticleService extends Service {
   async create(params) {
@@ -25,9 +25,27 @@ class ArticleService extends Service {
     });
     const success_history = result_history.affectedRows === 1;
 
+    // 创建一级目录
+    let result_cate_first = {};
+    if (Number(params.parent_id) === -1) {
+      result_cate_first = await this.app.mysql.insert('fe_cate_first', {
+        title: params.first_cate,
+        label: params.first_cate,
+        value: transliterate(params.title),
+        user_id: this.ctx.cookies.get('userId'),
+        create_time: this.app.mysql.literals.now,
+      });
+      if (result_cate_first.affectedRows !== 1) {
+        return data.fail({
+          code: 20001,
+          msg: '创建一级目录失败',
+        });
+      }
+    }
+
     // 添加二级目录
     const result_cate = await this.app.mysql.insert('fe_cate_second', {
-      parent_id: params.parent_id,
+      parent_id: result_cate_first.insertId || params.parent_id,
       user_id: this.ctx.cookies.get('userId'),
       create_time: this.app.mysql.literals.now,
       name: params.title,
@@ -37,13 +55,16 @@ class ArticleService extends Service {
 
 
     if (success && success_history && success_cate) {
-      return data.successFn({ id: result.insertId });
+      return data.successFn({
+        id: result.insertId,
+        secondListId: result_cate.insertId,
+      });
     } else if (!success) {
-      return data.fail({ code: 10003 });
+      return data.fail({ code: 20002, msg: '创建文章失败' });
     } else if (!success_history) {
-      return data.fail({ code: 10005 });
+      return data.fail({ code: 20003, msg: '插入历史记录失败' });
     } else if (!success_cate) {
-      return data.fail({ code: 10006 });
+      return data.fail({ code: 10006, msg: '创建二级目录失败' });
     }
   }
   async update(param) {
