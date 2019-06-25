@@ -35,7 +35,7 @@ module.exports = appInfo => {
       user: 'root',
       // 数据库名
       database: 'fe_doc',
-      socketPath: '/tmp/mysql.sock',
+      // socketPath: '/tmp/mysql.sock',
     },
     // 是否加载到 app 上，默认开启
     app: true,
