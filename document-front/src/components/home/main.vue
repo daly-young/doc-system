@@ -37,7 +37,7 @@ export default {
     })
   },
   created() {
-    this.value = this.curItem.md
+    this.value = this.curItem.md || ''
   },
   methods:{
     ...mapMutations([
