@@ -1,5 +1,6 @@
 // vue.config.js
 module.exports = {
+  outputDir: '/usr/share/nginx/html/system',
   devServer: {
     disableHostCheck: true,
     proxy: {
