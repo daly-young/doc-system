@@ -1,7 +1,7 @@
 <template>
   <el-header>
     <el-row class="layout">
-      <el-col :span="4" @click="backHome"><div class="grid-content fe-title">FE-DOC</div></el-col>
+      <el-col :span="4" @click="backHome"><div class="grid-content fe-title">DALY-DOC</div></el-col>
       <el-col :span="20" class="fe-headerRight">
         <el-menu 
           :default-active="activeIndex" 

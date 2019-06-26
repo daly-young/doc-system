@@ -1,7 +1,7 @@
 <template>
   <el-header height="210px" class="layout">
     <el-row>
-      <el-col :span="4"><div class="grid-content fe-title" @click="backHome">FE-DOC</div></el-col>
+      <el-col :span="4"><div class="grid-content fe-title" @click="backHome">DALY-DOC</div></el-col>
     </el-row>
     <el-row>
       <el-col :span="3">
