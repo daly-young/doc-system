@@ -1,5 +1,8 @@
 # Daly-Doc文档系统
 
+## 地址
+[DALY-DOC](http://system.xueshanshan.com/)
+
 ## 技术栈
 `Vue-cli3` + `elementUI` + `Egg` + `MySql`
 
@@ -97,6 +100,3 @@ config.mysql = {
 cd document-server
 npm start
 ```
-
-
-
