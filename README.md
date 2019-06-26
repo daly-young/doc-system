@@ -39,34 +39,34 @@ outputDir: '需要的位置',
 
 ```
 server {
-		listen 80;
-		server_name system.xueshanshan.com;
-		root   /usr/share/nginx/html/system;
-		index index.js index.html index.htm;
-
-
-		add_header Access-Control-Allow-Origin *;
-		add_header Access-Control-Allow-Headers X-Requested-With;
-		add_header Access-Control-Allow-Methods GET,POST,OPTIONS;
-
-		include /etc/nginx/default.d/*.conf;
-
-		location / {
-			try_files $uri $uri/ /index.html;
-		}
-
-		location /api {
-			rewrite  ^/api/(.*)$ /$1 break;
-			proxy_pass   http://127.0.0.1:7001;
-    }
-
-		error_page 404 /404.html;
-			location = /40x.html {
-		}
-
-		error_page 500 502 503 504 /50x.html;
-			location = /50x.html {
-		}
+	listen 80;
+	server_name system.xueshanshan.com;
+	root   /usr/share/nginx/html/system;
+	index index.js index.html index.htm;
+	
+	
+	add_header Access-Control-Allow-Origin *;
+	add_header Access-Control-Allow-Headers X-Requested-With;
+	add_header Access-Control-Allow-Methods GET,POST,OPTIONS;
+	
+	include /etc/nginx/default.d/*.conf;
+	
+	location / {
+		try_files $uri $uri/ /index.html;
+	}
+	
+	location /api {
+		rewrite  ^/api/(.*)$ /$1 break;
+		proxy_pass   http://127.0.0.1:7001;
+	}
+	
+	error_page 404 /404.html;
+		location = /40x.html {
+	}
+	
+	error_page 500 502 503 504 /50x.html;
+		location = /50x.html {
+	}
 }
 ```
 
