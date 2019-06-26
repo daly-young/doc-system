@@ -10,6 +10,9 @@
 * 用户文章收藏
 * 用户操作记录
 
+## 一览
+![image](https://github.com/daly-young/doc-system/blob/master/image.png)
+
 ## Quick Start
 ```
 // 前端静态
