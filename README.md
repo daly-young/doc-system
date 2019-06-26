@@ -72,8 +72,20 @@ server {
 	}
 }
 ```
+**3.导入备份数据库**
 
-**3.node服务，数据库连接配置**
+在根目录存有数据库备份文件`fe_doc.sql`
+
+在服务器上新建数据库
+
+```
+mysql> CREATE DATABASE fe_doc;
+
+mysql> mysql -h 127.0.0.1  -P 3306 -uroot -p123456 fe_doc < fe_doc.sql;
+
+```
+
+**4.node服务，数据库连接配置**
 
 `config/config.pro.js`
 
@@ -87,14 +99,14 @@ config.mysql = {
 		// 用户名
 		user: 'root',
 		// 数据库名
-		database: 'xxx',
+		database: 'fe_doc',
 		// 密码
 		password: '123456',
 	},
 };
 ```
 
-**4.启动node服务**
+**5.启动node服务**
 
 ```
 cd document-server
