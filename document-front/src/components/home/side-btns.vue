@@ -15,7 +15,8 @@ export default {
   },
   computed:{
     ...mapState({
-      curId: state => state.curId
+      curId: state => state.curId,
+      isLogin: state => state.isLogin,
     })
   },
   methods:{
@@ -44,6 +45,11 @@ export default {
         });
     },
     deleteFn() {
+      if(!this.isLogin) {
+        this.$router.push('/login')
+        return 
+      }
+
       articleDelete({
         id: this.curId
       }).then(({ success, msg })=>{
@@ -58,9 +64,13 @@ export default {
       })
     },
     switchFn() {
-      this.updateData({
-        switchEditor: true
-      })
+      if(!this.isLogin) {
+        this.$router.push('/login')
+      }else {
+        this.updateData({
+          switchEditor: true
+        })
+      }
     }
   }
 }

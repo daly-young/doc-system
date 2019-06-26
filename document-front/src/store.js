@@ -7,6 +7,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    isLogin: false,
     switchEditor: false,
     createShow: false,
     curId: 2, // 当前编辑文章id

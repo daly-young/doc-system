@@ -93,6 +93,9 @@ export default {
             this.$message.error(msg || '错了哦，这是一条错误消息');
           }
         }
+        this.updateData({
+          isLogin: this.isLogin
+        })
       })
     },
     backHome() {

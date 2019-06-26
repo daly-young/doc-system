@@ -29,6 +29,7 @@
 </template>
 <script>
 import { userLogin, userReg } from '@/assets/js/api'
+import { mapMutations } from 'vuex';
 
 export default {
   name: 'login',
@@ -80,6 +81,9 @@ export default {
   },
   created() {this.switchFn},
   methods:{
+    ...mapMutations([
+      'updateData',
+    ]),
     switchFn() {
       this.isLogin = !this.isLogin
     },
@@ -98,10 +102,13 @@ export default {
       }).then(({success, msg})=>{
         if(success) {
           if(this.backUrl) {
-            // window.location.href = this.backUrl
+            window.location.href = this.backUrl
           }else {
-            // this.$router.push('/')
+            this.$router.push('/')
           }
+          this.updateData({
+            isLogin: true
+          })
         } else {
           this.$message.error(msg);
         }
@@ -118,8 +125,11 @@ export default {
           if(this.backUrl) {
             window.location.href = this.backUrl
           }else {
-            // this.$router.push('/')
+            this.$router.push('/')
           }
+          this.updateData({
+            isLogin: true
+          })
         } else {
           this.$message.error(msg);
         }

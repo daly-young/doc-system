@@ -41,6 +41,7 @@ export default {
       secondTitle: state => state.secondTitle,
       firstTitle: state => state.firstTitle,
       curItem: state => state.curItem,
+      isLogin: state => state.isLogin,
     })
   },
   watch:{
@@ -57,6 +58,10 @@ export default {
       this.$store.dispatch('getArticle',{ id: this.curId })
     },
     switchCollect() {
+      if(!this.isLogin) {
+        this.$router.push('/login')
+        return 
+      }
       !this.curItem.isCollect&&this.collectFn()
       this.curItem.isCollect&&this.cancelFn()
     },
