@@ -12,7 +12,7 @@
       <el-form-item label="密码" prop="password">
         <el-input placeholder="请输入密码" v-model="infos.password" show-password></el-input>
       </el-form-item>
-      <el-form-item label="邮箱" prop="email" v-if="!isLogin">
+      <el-form-item label="邮箱" prop="email" v-if="!loginFirst">
         <el-input
             placeholder="请输入邮箱"
             v-model="infos.email"
@@ -20,8 +20,8 @@
           </el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="doLoginOrReg">{{isLogin?'登录':'注册'}}</el-button>
-        <el-link type="primary" @click="switchFn">{{isLogin?'注册':'登录'}}</el-link>
+        <el-button type="primary" @click="doLoginOrReg">{{loginFirst?'登录':'注册'}}</el-button>
+        <el-link type="primary" @click="switchFn">{{loginFirst?'注册':'登录'}}</el-link>
       </el-form-item>
     </el-form>
     <!-- <el-footer>Footer</el-footer> -->
@@ -72,23 +72,23 @@ export default {
             }
         }]
       },
-      isLogin: true,
+      loginFirst: true,
       user_name:'',
       password: '',
       email: '',
-      backUrl: decodeURI(this.$route.query.backUrl)
+      backUrl: this.$route.query.backUrl?decodeURI(this.$route.query.backUrl):''
     }
   },
-  created() {this.switchFn},
+  created() {},
   methods:{
     ...mapMutations([
       'updateData',
     ]),
     switchFn() {
-      this.isLogin = !this.isLogin
+      this.loginFirst = !this.loginFirst
     },
     doLoginOrReg() {
-      if(this.isLogin) {
+      if(this.loginFirst) {
         this.doLogin()
       }else {
         this.doReg()
@@ -102,6 +102,7 @@ export default {
       }).then(({success, msg})=>{
         if(success) {
           if(this.backUrl) {
+            console.log(this.backUrl,'=====')
             window.location.href = this.backUrl
           }else {
             this.$router.push('/')
