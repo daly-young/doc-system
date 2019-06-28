@@ -101,6 +101,7 @@ class ArticleService extends Service {
     const result = await this.app.mysql.get('fe_article', param);
     const isCollect = await this.app.mysql.get('fe_collect', {
       article_id: param.id,
+      user_id: this.ctx.cookies.get('userId'),
     });
     const data = new this.ctx.helper.Ajaxresult();
     if (result) {
