@@ -101,7 +101,7 @@ export default {
       }).then(({success, msg})=>{
         if(success) {
           if(this.backUrl) {
-            console.log(this.backUrl,'=====')
+            // console.log(this.backUrl,'=====')
             window.location.href = this.backUrl
           }else {
             this.$router.push('/')
