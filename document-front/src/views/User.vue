@@ -27,11 +27,6 @@ export default {
     userList,
     userPagination,
   },
-  data(){
-    return {}
-  },
-  created() {},
-  methods:{}
 }
 </script>
 <style lang="scss">

@@ -3,13 +3,16 @@ import axios from 'axios'
 import qs from 'qs'
 import VueAxios from 'vue-axios'
 import { handleResult } from '@/assets/js/base'
+import { Loading } from 'element-ui';
 Vue.use(VueAxios, axios)
 
 
 // 路由请求拦截
 // http request 拦截器
+let loadingInstance
 axios.interceptors.request.use(
   config => {
+    loadingInstance = Loading.service({ fullscreen: true });
     config.baseURL = '/api/'
     config.headers['withCredentials'] = true;
     config.headers['Access-Control-Allow-Credentials'] = true;
@@ -24,14 +27,14 @@ axios.interceptors.request.use(
 
 // 路由响应拦截
 // http response 拦截器
-// axios.interceptors.response.use(
-//   response => {
-//     if (!response) return
-//     return response;
-//   },
-//   error => {
-//     return Promise.reject(error.response)   // 返回接口返回的错误信息
-//   });
+axios.interceptors.response.use(
+  response => {
+    loadingInstance.close()
+    return response;
+  },
+  error => {
+    return Promise.reject(error.response)   // 返回接口返回的错误信息
+  });
 
 
 

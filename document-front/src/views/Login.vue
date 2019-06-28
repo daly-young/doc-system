@@ -79,7 +79,6 @@ export default {
       backUrl: this.$route.query.backUrl?decodeURI(this.$route.query.backUrl):''
     }
   },
-  created() {},
   methods:{
     ...mapMutations([
       'updateData',
