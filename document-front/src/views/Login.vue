@@ -97,7 +97,7 @@ export default {
       let {user_name, password} = this.infos
       userLogin({
         user_name,
-        password
+        password: password.toString()
       }).then(({success, msg})=>{
         if(success) {
           if(this.backUrl) {
@@ -118,7 +118,7 @@ export default {
       let {user_name, password, email} = this.infos
       userReg({
         user_name,
-        password,
+        password: password.toString(),
         email
       }).then(({success, msg})=>{
         if(success) {

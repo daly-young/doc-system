@@ -9,7 +9,7 @@ class ArticleService extends Service {
     // 创建文章
     const result = await this.app.mysql.insert('fe_article', {
       article_name: params.title,
-      user_id: this.ctx.cookies.get('userId'),
+      user_id: this.ctx.cookies.get('userId', { encrypt: true }),
       create_time: this.app.mysql.literals.now,
       modify_time: this.app.mysql.literals.now,
     });
@@ -19,7 +19,7 @@ class ArticleService extends Service {
     // 创建历史记录
     const result_history = await this.app.mysql.insert('fe_history', {
       article_id: result.insertId,
-      user_id: this.ctx.cookies.get('userId'),
+      user_id: this.ctx.cookies.get('userId', { encrypt: true }),
       user_name: 'daly',
       modify_time: this.app.mysql.literals.now,
     });
@@ -32,7 +32,7 @@ class ArticleService extends Service {
         title: params.first_cate,
         label: params.first_cate,
         value: transliterate(params.title),
-        user_id: this.ctx.cookies.get('userId'),
+        user_id: this.ctx.cookies.get('userId', { encrypt: true }),
         create_time: this.app.mysql.literals.now,
       });
       if (result_cate_first.affectedRows !== 1) {
@@ -46,7 +46,7 @@ class ArticleService extends Service {
     // 添加二级目录
     const result_cate = await this.app.mysql.insert('fe_cate_second', {
       parent_id: result_cate_first.insertId || params.parent_id,
-      user_id: this.ctx.cookies.get('userId'),
+      user_id: this.ctx.cookies.get('userId', { encrypt: true }),
       create_time: this.app.mysql.literals.now,
       name: params.title,
       article_id: result.insertId,
@@ -74,7 +74,7 @@ class ArticleService extends Service {
     // 更新历史记录
     await this.app.mysql.insert('fe_history', {
       article_id: param.id,
-      user_id: this.ctx.cookies.get('userId'),
+      user_id: this.ctx.cookies.get('userId', { encrypt: true }),
       user_name: 'daly_3',
       modify_time: this.app.mysql.literals.now,
     });
@@ -101,7 +101,7 @@ class ArticleService extends Service {
     const result = await this.app.mysql.get('fe_article', param);
     const isCollect = await this.app.mysql.get('fe_collect', {
       article_id: param.id,
-      user_id: this.ctx.cookies.get('userId'),
+      user_id: this.ctx.cookies.get('userId', { encrypt: true }),
     });
     const data = new this.ctx.helper.Ajaxresult();
     if (result) {

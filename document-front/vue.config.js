@@ -5,7 +5,7 @@ module.exports = {
     disableHostCheck: true,
     proxy: {
       '/api': {
-        target: 'http://system.xueshanshan.com:7001',
+        target: 'http://0.0.0.0:7001',
         pathRewrite: {
           '^/api': ''
         }

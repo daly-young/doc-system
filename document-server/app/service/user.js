@@ -12,20 +12,25 @@ class UserService extends Service {
       });
     }
     const { ctx } = this;
-    ctx.cookies.set('userId', results.id);
+    // cookie 存储值必须是string或者buffer
+    ctx.cookies.set('userId', results.id.toString(), {
+      encrypt: true,
+    });
     return data.successFn(results);
   }
   async reg(param) {
     param.reg_time = this.app.mysql.literals.now;
     param.host = this.ctx.helper.getIp(this.ctx.request);
     const results = await this.app.mysql.insert('fe_user', param);
-    this.ctx.cookies.set('userId', results.insertId);
+    this.ctx.cookies.set('userId', results.insertId, {
+      encrypt: true,
+    });
     const data = new this.ctx.helper.Ajaxresult();
     return data.successFn(results);
   }
   async info() {
     const results = await this.app.mysql.get('fe_user', {
-      id: this.ctx.cookies.get('userId'),
+      id: this.ctx.cookies.get('userId', { encrypt: true }),
     });
     const data = new this.ctx.helper.Ajaxresult();
     if (!results) {
@@ -38,8 +43,8 @@ class UserService extends Service {
   async createHistory(params) {
     const { start, size } = params;
     console.log(start, size, '======');
-    console.log(typeof this.ctx.cookies.get('userId'), '=====userId');
-    const user_id = this.ctx.cookies.get('userId');
+    console.log(typeof this.ctx.cookies.get('userId', { encrypt: true }), '=====userId');
+    const user_id = this.ctx.cookies.get('userId', { encrypt: true });
     const results = await this.app.mysql.select('fe_history', {
       where: { user_id, operation: [ 'create' ] },
       limit: Number(size),
@@ -58,7 +63,7 @@ class UserService extends Service {
   // 收藏历史
   async collectHistory(params) {
     const { start, size } = params;
-    const user_id = this.ctx.cookies.get('userId');
+    const user_id = this.ctx.cookies.get('userId', { encrypt: true });
 
     const results = await this.app.mysql.select('fe_history', {
       where: { user_id, operation: [ 'collect', 'cancel' ] },
@@ -79,12 +84,12 @@ class UserService extends Service {
   async operationHistory(params) {
     const { start, size } = params;
     const results = await this.app.mysql.select('fe_history', {
-      where: { user_id: this.ctx.cookies.get('userId') },
+      where: { user_id: this.ctx.cookies.get('userId', { encrypt: true }) },
       limit: Number(size),
       offset: Number(start),
     });
     const total = await this.app.mysql.select('fe_history', {
-      where: { user_id: this.ctx.cookies.get('userId') },
+      where: { user_id: this.ctx.cookies.get('userId', { encrypt: true }) },
     });
 
     const data = new this.ctx.helper.Ajaxresult();
