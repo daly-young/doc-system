@@ -1,0 +1,21 @@
+@import './var.scss';
+
+.adminFooter {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1140px;
+  text-align: center;
+  line-height: 60px;
+  &.ant-layout-footer {
+    background-color: #fff;
+    padding: 0;
+  }
+  i {
+    font-size: 20px;
+    position: relative;
+    top: 4px;
+    margin-right: 10px;
+  }
+}

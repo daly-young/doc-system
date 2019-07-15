@@ -1,0 +1,46 @@
+@import './var.scss';
+
+.adminHeader{
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1140px;
+  color: $color;
+  line-height: 60px;
+  height: 60px;
+  &.ant-layout-header{
+    background-color: #fff;
+  }
+  &__logo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: 60px;
+    background: url(../../logo.svg) no-repeat center center ;
+  }
+  &__input {
+    position: absolute;
+    right: 250px;
+    top: 16px;
+    width: 200px!important;
+  }
+  &__search {
+    position: absolute!important;
+    right: 140px;
+    top: 16px;
+  }
+  &__user {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 0 20px;
+    i {
+      margin-right: 10px;
+      font-size: 24px;
+      position: relative;
+      top: 4px;
+    }
+  }
+}

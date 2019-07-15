@@ -1,0 +1,70 @@
+@import './var.scss';
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    height: auto;
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Microsoft YaHei', Tahoma;
+    color: $color!important;
+    background-color: #f8f8f8!important;
+}
+.App, #root {
+    height: 100%;
+}
+
+ul, li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+input, textarea, keygen, select, button {
+    font-family: 'Microsoft YaHei', Tahoma;
+    font-size: 12px;
+}
+
+a {
+    color: #409EFF;
+    text-decoration: none;
+    &:hover, &:active {
+        color: #409EFF;
+        text-decoration: none;
+    }
+    &:focus {
+        text-decoration: none;
+    }
+}
+
+.layout {
+    display: flex;
+    width: 1140px;
+    margin: 0 auto;
+    height: 100%;
+    padding: 80px 0;
+    justify-content: space-between;
+    background-color: transparent !important;
+}
+/**
+ * margin/padding 边距
+ * @生成形如.mr5 { marign-right: 5px; }
+ */
+$type-list: m p;
+$type-map: (m: margin, p: padding);
+$pos-list: t r b l;
+$pos-map: (t: top, r: right, b: bottom, l: left);
+
+@each $type in $type-list {
+    @each $pos in $pos-list {
+        @for $i from 1 through 10 {
+            .#{$type}#{$pos}#{$i * 5} { #{map-get($type-map, $type)}-#{map-get($pos-map, $pos)}: $i * 5px; }
+        }
+    }
+}
