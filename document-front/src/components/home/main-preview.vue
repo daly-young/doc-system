@@ -2,8 +2,9 @@
   <el-main>
     <div class="breadcrumbBox">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <el-breadcrumb-item :to="{ path: '/' }">{{firstTitle}}</el-breadcrumb-item>
-        <el-breadcrumb-item>{{secondTitle}}</el-breadcrumb-item>
+        <!-- <el-breadcrumb-item :to="{ path: '/' }">{{firstTitle}}</el-breadcrumb-item>
+        <el-breadcrumb-item>{{secondTitle}}</el-breadcrumb-item>breadNav -->
+        <el-breadcrumb-item v-for="(item,index) in breadNav" :key="index">{{item}}</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <mavon-editor v-html="curItem.content" :subfield="false" :defaultOpen="'preview'" :toolbarsFlag="false" :boxShadow="false" v-if="curItem.content"/>
@@ -42,6 +43,7 @@ export default {
       firstTitle: state => state.firstTitle,
       curItem: state => state.curItem,
       isLogin: state => state.isLogin,
+      breadNav: state => state.breadNav
     })
   },
   watch:{

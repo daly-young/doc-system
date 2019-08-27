@@ -25,7 +25,6 @@ class UserController extends Controller {
   async login() {
     const { ctx } = this;
     const param = ctx.request.body;
-    console.log(typeof param.password, typeof param.user_name, '================');
     try {
       ctx.validate({
         user_name: { type: 'string', required: true },

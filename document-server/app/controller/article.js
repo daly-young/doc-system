@@ -22,6 +22,7 @@ class ArticleController extends Controller {
     }
     ctx.body = await ctx.service.article.create(param);
   }
+
   async update() {
     const { ctx } = this;
     const param = ctx.request.body;
@@ -41,12 +42,14 @@ class ArticleController extends Controller {
     }
     ctx.body = await ctx.service.article.update(param);
   }
+
   async delete() {
     const { ctx } = this;
-    const param = ctx.query;
+    const params = ctx.query;
     try {
       ctx.validate({
-        id: { type: 'id', required: true },
+        id: { type: 'Array' },
+        cateId: { type: 'Array' },
       }, ctx.query);
     } catch (err) {
       ctx.logger.warn(err.errors);
@@ -56,8 +59,9 @@ class ArticleController extends Controller {
       });
       return;
     }
-    ctx.body = await ctx.service.article.delete(param);
+    ctx.body = await ctx.service.article.delete(params);
   }
+
   async getcontent() {
     const { ctx } = this;
     const param = ctx.query;
@@ -74,6 +78,12 @@ class ArticleController extends Controller {
       return;
     }
     ctx.body = await ctx.service.article.getcontent(param);
+  }
+
+  async listAll() {
+    const { ctx } = this;
+    // const param = ctx.query;
+    ctx.body = await ctx.service.article.listAll();
   }
 }
 

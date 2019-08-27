@@ -8,6 +8,7 @@ class CategoryController extends Controller {
     const { ctx } = this;
     ctx.body = await ctx.service.category.getlist(ctx);
   }
+
   async getsecond() {
     const { ctx } = this;
     const param = ctx.query;
@@ -24,6 +25,11 @@ class CategoryController extends Controller {
       return;
     }
     ctx.body = await ctx.service.category.getsecond(param);
+  }
+
+  async getIncluded() {
+    const { ctx } = this;
+    ctx.body = await ctx.service.category.getIncluded(ctx);
   }
 }
 

@@ -67,6 +67,7 @@ class ArticleService extends Service {
       return data.fail({ code: 10006, msg: '创建二级目录失败' });
     }
   }
+
   async update(param) {
     param.modify_time = this.app.mysql.literals.now;
     const result = await this.app.mysql.update('fe_article', param);
@@ -82,11 +83,23 @@ class ArticleService extends Service {
 
     return { success };
   }
-  async delete(param) {
-    const result = await this.app.mysql.delete('fe_article', param);
+
+  async delete(params) {
+    let result;
+    let result_cate;
+    if (params.id) {
+      result = await this.app.mysql.delete('fe_article', {
+        id: params.id.join(','),
+      });
+      result_cate = await this.app.mysql.delete('fe_cate_second', { article_id: params.id.join(',') });
+    } else {
+      result = await this.app.mysql.delete('fe_cate_second', {
+        id: params.cateId.join(','),
+      });
+    }
     const success = result.affectedRows === 1;
     // 删除二级目录
-    const result_cate = await this.app.mysql.delete('fe_cate_second', { article_id: param.id });
+    // const result_cate = await this.app.mysql.delete('fe_cate_second', { article_id: param.id });
     const success_cate = result_cate.affectedRows === 1;
     if (success && success_cate) {
       return { success };
@@ -97,6 +110,7 @@ class ArticleService extends Service {
     };
 
   }
+
   async getcontent(param) {
     const result = await this.app.mysql.get('fe_article', param);
     const isCollect = await this.app.mysql.get('fe_collect', {
@@ -106,6 +120,15 @@ class ArticleService extends Service {
     const data = new this.ctx.helper.Ajaxresult();
     if (result) {
       result.isCollect = isCollect !== null;
+      return data.successFn(result);
+    }
+    return data.fail({ code: 10004 });
+  }
+
+  async listAll() {
+    const result = await this.app.mysql.select('fe_article');
+    const data = new this.ctx.helper.Ajaxresult();
+    if (result) {
       return data.successFn(result);
     }
     return data.fail({ code: 10004 });

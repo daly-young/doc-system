@@ -1,27 +1,31 @@
 import React from 'react'
 import { Layout, Button, Table, Pagination } from 'antd';
-import '../assets/style/content.scss'
+import '../../assets/style/content.scss'
 
 const { Content } = Layout;
 
 const columns = [{
-  title: 'Name',
+  title: 'ID',
+  dataIndex: 'id',
+}, {
+  title: '文章名称',
   dataIndex: 'name',
 }, {
-  title: 'Age',
-  dataIndex: 'age',
+  title: '创建日期',
+  dataIndex: 'createTime',
 }, {
-  title: 'Address',
-  dataIndex: 'address',
+  title: '创建人',
+  dataIndex: 'creator',
 }];
 
 const data = [];
 for (let i = 0; i < 46; i++) {
   data.push({
     key: i,
+    id: i,
     name: `Edward King ${i}`,
-    age: 32,
-    address: `London, Park Lane no. ${i}`,
+    createTime: '2019-10-10',
+    creator: 'Daly',
   });
 }
 
@@ -30,11 +34,15 @@ function onChange(pageNumber) {
   console.log(pageNumber)
 }
 
-class AdminContent extends React.Component {
-  state = {
-    selectedRowKeys: [], // Check here to configure the default column
-    loading: false,
-  };
+class TagContent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selectedRowKeys: [], // Check here to configure the default column
+      loading: false,
+    }
+  }
+
   start = () => {
     this.setState({ loading: true });
     // ajax request after empty completing
@@ -86,4 +94,4 @@ class AdminContent extends React.Component {
   }
 }
 
-export default AdminContent
+export default TagContent

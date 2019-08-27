@@ -3,27 +3,29 @@
     <el-row class="layout">
       <el-col :span="4" @click="backHome"><div class="grid-content fe-title">DALY-DOC</div></el-col>
       <el-col :span="20" class="fe-headerRight">
+        <!-- 一级目录 -->
         <el-menu 
           :default-active="activeIndex" 
           class="el-menu-demo" 
           mode="horizontal" 
-          @select="handleSelect" 
           text-color="#79BBFF"
           active-text-color="#409EFF">
           <template
-            v-for="(item,index) in firstList" 
-            :index="index">
+            v-for="(item,index) in category" 
+            :index="index.toString()">
             <el-menu-item 
               :key="item.id" 
-              :index="index+''"
+              :index="index.toString()"
               @click="changeList(item)">{{item.title}}</el-menu-item>
           </template>
-          <el-menu-item :index="firstList.length+1+''">
+          <!-- 搜索 -->
+          <el-menu-item :index="searchIndex">
             <input type="search" class="fe-search" v-model="keywords" placeholder="search(还没开发)">
             <i class="el-icon-search" @click="searchFn"></i>
           </el-menu-item>
+          <!-- 用户 -->
           <template v-if="isLogin">
-            <el-menu-item class="fe-username" :index="firstList.length+2+''">
+            <el-menu-item class="fe-username" :index="userIndex">
               <a href="/user">
                 <i class="el-icon-user-solid"></i>
                 <span>{{userName}}</span>
@@ -44,14 +46,13 @@
 </template>
 
 <script>
-import { searchAll,userInfo} from '@/assets/js/api'
+import { searchAll, userInfo} from '@/assets/js/api'
 import { mapMutations, mapState, mapActions } from 'vuex'
 export default {
   name: 'feHeader',
   data() {
     return {
       projectList:[],
-      // activeIndex: '0', // 必须是字符串
       keywords: '',
       userName:'',
       isLogin: false,
@@ -60,11 +61,16 @@ export default {
   },
   computed: {
     ...mapState({
-      firstList: state => state.firstList,
-      firstId: state => state.firstId,
-      activeIndex: state => state.activeIndex_first,
+      category: state => state.category,
+      activeIndex: state => state.activeIndex,
       switchEditor: state => state.switchEditor,
-    })
+    }),
+    searchIndex() {
+      return (this.category.length+1).toString()
+    },
+    userIndex() {
+      return (this.category.length+2).toString()
+    }
   },
   created() {
     this.init()
@@ -72,14 +78,16 @@ export default {
   methods:{
     ...mapMutations([
       'updateData',
+      'updateSideCategory'
     ]),
     ...mapActions([
-      'getFirstListFn',
-      'getSecondListFn',
+      'getCateListFn',
     ]),
     init() {
+      // 获取用户信息
       this.getUser()
-      this.$store.dispatch('getFirstListFn')
+      // 获取所有分类信息
+      this.$store.dispatch('getCateListFn')
     },
     getUser() {
       userInfo().then(({success,result,code,msg})=>{
@@ -93,6 +101,7 @@ export default {
             this.$message.error(msg || '错了哦，这是一条错误消息');
           }
         }
+        // 提交登录状态
         this.updateData({
           isLogin: this.isLogin
         })
@@ -101,20 +110,20 @@ export default {
     backHome() {
       this.$router.push('/')
     },
-    showProject() {},
-    handleSelect(){},
-    changeList({id, title}) {
-      this.updateData({
-        firstId: id,
-        firstTitle: title
+    // 切换选项
+    changeList({id}) {
+      this.updateSideCategory({
+        firstLevelId: id,
+        // firstTitle: title
       })
-      this.$store.dispatch('getSecondListFn')
     },
+    // 搜索功能
     searchFn() {
       searchAll({
         keywords:  this.keywords
       }).then(()=>{})
     },
+    // 创建新文章
     createFn() {
       // 编辑状态不可创建
       if(this.switchEditor) {
@@ -129,6 +138,7 @@ export default {
         createShow: true
       })
     },
+    // 登录
     login() {
       this.$router.push({
         path: '/login',

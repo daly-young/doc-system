@@ -16,9 +16,12 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 60px;
+    // width: 60px;
     height: 60px;
-    background: url(../../logo.svg) no-repeat center center ;
+    font-size: 26px;
+    font-weight: bold;
+    padding-left: 20px;
+    // background: url(../../logo.svg) no-repeat center center ;
   }
   &__input {
     position: absolute;

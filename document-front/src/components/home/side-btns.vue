@@ -51,7 +51,7 @@ export default {
       }
 
       articleDelete({
-        id: this.curId
+        id: [this.curId]
       }).then(({ success, msg })=>{
         if(success) {
           this.$message('删除成功');

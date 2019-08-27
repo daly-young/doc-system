@@ -15,7 +15,7 @@
 
 <script>
 import feHeader from '@/components/home/header.vue'
-import feAside from '@/components/home/aside.vue'
+import feAside from '@/components/home/aside'
 import feMain from '@/components/home/main.vue'
 import feMain1 from '@/components/home/main-preview.vue'
 import feSidebtns from '@/components/home/side-btns.vue'

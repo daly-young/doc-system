@@ -48,7 +48,6 @@ export default {
       })
     },
     backHome() {
-      console.log()
       this.$router.push('/')
     },
   }

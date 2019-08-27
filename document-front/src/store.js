@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { getContent, getFirstList, getSecondList, userCreateHistory, userCollectHistory, userOperationHistory } from '@/assets/js/api'
+import { getContent, getCateList, userCreateHistory, userCollectHistory, userOperationHistory } from '@/assets/js/api'
 
 Vue.use(Vuex)
 
@@ -12,12 +12,15 @@ export default new Vuex.Store({
     createShow: false,
     curId: 2, // 当前编辑文章id
     curItem: {},
-    firstId: 1,
     firstTitle: '',
     firstList: [],
     secondTitle: '',
     secondList: [],
-    activeIndex_first: '0',
+    firstLevelId: -1, // 一级目录ID
+    category: [], // 所有分类数据
+    sideCategory: {}, // 当前侧边栏数据
+    breadNav: [], // 面包屑数组
+    activeIndex: '0',
     activeIndex_second: '0',
     fromCreate: false,
     user: {
@@ -50,7 +53,8 @@ export default new Vuex.Store({
     },
     updateUserAside(state) {
       let index = state.user.activeIndex
-      if (index === 1 || index === 2) {
+      let i = [1, 2]
+      if (i.includes(index)) {
         state.user.tableHeader = [{
           label: '文章',
           value: 'article',
@@ -76,6 +80,11 @@ export default new Vuex.Store({
         }]
       }
     },
+    updateSideCategory(state, { firstLevelId }) {
+      state.firstLevelId = firstLevelId
+      const list = state.category.find(({ id }) => id === firstLevelId)
+      state.sideCategory = list ? list : undefined
+    }
   },
   actions: {
     getArticle({ commit, state }) {
@@ -93,64 +102,17 @@ export default new Vuex.Store({
 
       })
     },
-    getFirstListFn({ commit, state, dispatch }) {
+    getCateListFn({ commit }) {
       // 初始化一级列表数据
-      getFirstList().then(({ success, result, msg }) => {
+      getCateList().then(({ success, result, msg }) => {
         if (success) {
-          // 格式化
-          result.map((item, index) => {
-            item.label = item.title
-            item.index = index.toString()
-          })
-          let obj
-          if (state.fromCreate) {
-            obj = result[result.length - 1]
-          } else {
-            obj = result[0]
-          }
-          // 存储一级列表相关
+          // 存储列表
           commit('updateData', {
-            firstId: obj.id,
-            firstTitle: obj.label,
-            firstList: result,
-            activeIndex_first: obj.index,
+            category: result,
+            sideCategory: result[0]
           })
-          // 触发二级列表
-          dispatch('getSecondListFn')
         } else {
           this.$message.error(msg);
-        }
-      })
-    },
-    getSecondListFn({ commit, state, dispatch }) {
-      getSecondList({
-        id: state.firstId
-      }).then(({ success, result, msg }) => {
-        if (success) {
-          commit('updateData', {
-            secondList: result,
-          })
-          if (state.fromCreate) {
-            let param = result.find((item) => {
-              return item.article_id == state.curId
-            })
-            commit('updateData', {
-              activeIndex_second: state.curId.toString(),
-              fromCreate: false,
-              curItem: {},
-              secondTitle: param.name
-            })
-            return
-          }
-          let { article_id, name } = result[0]
-          commit('updateData', {
-            curId: article_id,
-            activeIndex_second: article_id.toString(),
-            secondTitle: name,
-          })
-          return dispatch('getArticle', result[0])
-        } else {
-          console.log(msg)
         }
       })
     },

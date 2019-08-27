@@ -9,6 +9,8 @@ import './plugins/axios.js'
 Vue.config.productionTip = false
 // Vue.prototype.$axios = axios;
 
+Vue.component('tree-item', { template: '#item-template' })
+
 new Vue({
   router,
   store,

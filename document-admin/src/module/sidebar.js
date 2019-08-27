@@ -6,7 +6,19 @@ const { Sider } = Layout;
 class AdminSider extends React.Component {
   constructor() {
     super();
-    this.state = {}
+    this.state = {
+      list: [{
+        name: '文章管理'
+      }, {
+        name: '目录管理'
+      }, {
+        name: '标签'
+      }, {
+        name: '分类'
+      }, {
+        name: '用户管理'
+      }]
+    }
   }
   fetchData() {
     axios.get('').then((data) => {
@@ -15,18 +27,21 @@ class AdminSider extends React.Component {
 
     })
   }
+
   render() {
+    let { selectCate } = this.props
     return (
       <Sider width={200} className="adminSider">
         <Menu
           mode="inline"
-          defaultSelectedKeys={['1']}
+          defaultSelectedKeys={['0']}
         >
-          <Menu.Item key="1" onClick={this.fetchData(1)}>文章管理</Menu.Item>
-          <Menu.Item key="2">目录管理</Menu.Item>
-          <Menu.Item key="3">标签</Menu.Item>
-          <Menu.Item key="4">分类</Menu.Item>
-          <Menu.Item key="5">用户管理</Menu.Item>
+          {this.state.list.map((item, index) =>
+            <Menu.Item key={index.toString()}
+              onClick={e => selectCate(e.key)}>
+              {item.name}
+            </Menu.Item>
+          )}
         </Menu>
       </Sider >
     )
