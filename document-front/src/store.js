@@ -20,7 +20,8 @@ export default new Vuex.Store({
     category: [], // 所有分类数据
     sideCategory: {}, // 当前侧边栏数据
     breadNav: [], // 面包屑数组
-    activeIndex: '0',
+    activeIndex: '0', // 顶部导航
+    artcileId: -1, // 当前操作文章ID
     activeIndex_second: '0',
     fromCreate: false,
     user: {
@@ -88,7 +89,7 @@ export default new Vuex.Store({
   },
   actions: {
     getArticle({ commit, state }) {
-      getContent({ id: state.curId }).then(({ success, result, msg }) => {
+      getContent({ id: state.artcileId }).then(({ success, result, msg }) => {
         if (success) {
           let data = {
             curItem: result,

@@ -11,8 +11,6 @@
         :key="child.id"
         :item="child"
         :index="index+'-'+ i"
-        @make-folder="$emit('make-folder', $event)"
-        @add-item="$emit('add-item', $event)"
       ></tree-menus>
     </el-submenu >
     <el-menu-item 
@@ -24,6 +22,7 @@
   </div>
 </template>
 <script>
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'treeMenus',
@@ -43,9 +42,15 @@ export default {
     }
   },
   methods: {
+    ...mapMutations([
+      'updateData'
+    ]),
     getArticle() {
-      this.$emit('getArtcile', this.item)
-    }
+      this.updateData({
+        artcileId: this.item.article_id
+      })
+      this.$store.dispatch('getArticle')
+    },
   }
 }
 </script>

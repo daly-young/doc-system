@@ -15,7 +15,6 @@
           :key="item.id"
           :item="item"
           :index="index.toString()"
-          @getArtcile="getArticle"
         ></tree-menus>
       </el-menu>
     </template>
@@ -28,13 +27,9 @@ import { mapState, mapMutations } from 'vuex'
 import treeMenus from './aside-menu'
 export default {
   data() {
-    return {
-      list: [],
-      breadNav:[]
-    }
+    return {}
   },
   components: {
-    // treeItem,
     treeMenus
   },
   computed:{
@@ -46,30 +41,20 @@ export default {
     ...mapMutations([
       'updateData'
     ]),
-    getArticle({article_id, name}) {
-      // todo: 待优化
-      this.updateData({
-        curId: article_id,
-        secondTitle: name,
-      })
-      // this.$store.dispatch('getArticle')
-    },
     selectFn(index) {
       index  = index.split('-')
-      this.breadNav = []
+      let breadNav = []
 
       // 转译为名称
       index.reduce((pre, cur) => {
         const list = pre.list
-        this.breadNav.push(pre.title)
+        breadNav.push(pre.title)
         if(!list.length) return
         return list[cur]
       }, this.sideCategory.list[index[0]])
 
       // 提交面包屑数据
-      this.updateData({
-        breadNav: this.breadNav
-      })
+      this.updateData({ breadNav })
     },
   }
 }
