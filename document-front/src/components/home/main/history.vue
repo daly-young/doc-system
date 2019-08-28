@@ -36,11 +36,11 @@ export default {
   },
   computed:{
     ...mapState({
-      curId: state => state.curId
+       articleId: state => state.articleId,
     })
   },
   watch:{
-    curId(newVal) {
+    articleId(newVal) {
       if(newVal) {
         this.visible = false
       }
@@ -53,7 +53,7 @@ export default {
     },
     getData() {
       getHistory({
-        id: this.curId
+        id: this.articleId
       }).then(({success, result, msg})=>{
         if(success){
           this.gridData = result
@@ -66,4 +66,10 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+.fe-history {
+  line-height: 40px;
+}
+</style>
+
 

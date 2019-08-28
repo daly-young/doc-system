@@ -1,5 +1,6 @@
 <template>
-  <el-main>
+<!-- // todo: 上传图片 -->
+  <div>
     <mavon-editor v-model="value" @change="changeData"/>
     <el-button type="primary" @click="saveData">保存</el-button>
     <el-popover
@@ -13,7 +14,7 @@
       </div>
       <el-button slot="reference" type="info" plain>取消</el-button>
     </el-popover>
-  </el-main>
+  </div>
 </template>
 
 <script>
@@ -32,12 +33,12 @@ export default {
   },
   computed:{
     ...mapState({
-      curId: state => state.curId,
-      curItem: state => state.curItem,
+      articleId: state => state.articleId,
+      articleDetails: state => state.articleDetails,
     })
   },
   created() {
-    this.value = this.curItem.md || ''
+    this.value = this.articleDetails.md || ''
   },
   methods:{
     ...mapMutations([
@@ -46,11 +47,17 @@ export default {
     saveData() {
       // todo:通知修改展示状态
       articleUpdate({
-        id: this.curId,
+        id: this.articleId,
         content: this.render,
         md: this.value
-      }).then(({ success })=>{
-        success && this.cancelFn()
+      }).then(({ success, msg })=>{
+        if(success) {
+          sessionStorage.removeItem('article_' + this.articleId)
+          this.$store.dispatch('getArticle')
+          this.cancelFn()
+        } else {
+          this.$message.error(msg || '更新失败');
+        }
       })
     },
     changeData(value, render) {

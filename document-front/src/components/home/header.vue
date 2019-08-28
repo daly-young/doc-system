@@ -16,7 +16,7 @@
             <el-menu-item 
               :key="item.id" 
               :index="index.toString()"
-              @click="changeList(item)">{{item.title}}</el-menu-item>
+              @click="changeList(item)">{{item.label}}</el-menu-item>
           </template>
           <!-- 搜索 -->
           <el-menu-item :index="searchIndex">
@@ -114,7 +114,6 @@ export default {
     changeList({id}) {
       this.updateSideCategory({
         firstLevelId: id,
-        // firstTitle: title
       })
     },
     // 搜索功能

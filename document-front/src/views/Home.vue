@@ -2,11 +2,11 @@
 <el-container class="layout">
   <fe-header></fe-header>
   <el-container>
-    <fe-aside></fe-aside>
+    <fe-aside v-if="showAsideMenu"></fe-aside>
     <el-container>
-      <fe-main v-if="switchEditor"></fe-main>
-      <fe-main1 v-else></fe-main1>
-      <fe-sidebtns v-if="!switchEditor"></fe-sidebtns>
+      <fe-main></fe-main>
+      <!-- <fe-main1 v-else></fe-main1> -->
+      <!-- <fe-sidebtns v-if="!switchEditor"></fe-sidebtns> -->
     </el-container>
   </el-container>
   <fe-create v-if="createShow"></fe-create>
@@ -16,9 +16,9 @@
 <script>
 import feHeader from '@/components/home/header.vue'
 import feAside from '@/components/home/aside'
-import feMain from '@/components/home/main.vue'
-import feMain1 from '@/components/home/main-preview.vue'
-import feSidebtns from '@/components/home/side-btns.vue'
+import feMain from '@/components/home/main'
+// import feMain1 from '@/components/home/main-preview.vue'
+// import feSidebtns from '@/components/home/side-btns.vue'
 import feCreate from '@/components/home/create.vue'
 import { mapState } from 'vuex'
 
@@ -28,8 +28,8 @@ export default {
     feHeader,
     feAside,
     feMain,
-    feMain1,
-    feSidebtns,
+    // feMain1,
+    // feSidebtns,
     feCreate
   },
   data() {
@@ -39,7 +39,12 @@ export default {
     ...mapState({
       switchEditor: state => state.switchEditor,
       createShow: state => state.createShow,
-    })
+      sideCategory: state => state.sideCategory
+    }),
+    showAsideMenu() {
+      let { sideCategory } = this
+      return sideCategory && sideCategory.children && sideCategory.children.length
+    }
   }
 }
 </script>

@@ -1,17 +1,17 @@
 <template>
   <el-aside width="200px">
-    <template v-if="sideCategory">
+    <template v-if="sideCategory&&sideCategory.children.length">
       <el-menu 
         background-color="transparent" 
         text-color="#999" 
         active-text-color="#409EFF" 
-        :default-active="'0'" 
+        :default-active="sideCategoryActiveIndex" 
         menu-trigger="click" 
         :unique-opened="true"
         @select="selectFn"
         id="demo">
         <tree-menus 
-          v-for="(item,index) in sideCategory.list"
+          v-for="(item,index) in sideCategory.children"
           :key="item.id"
           :item="item"
           :index="index.toString()"
@@ -26,35 +26,23 @@
 import { mapState, mapMutations } from 'vuex'
 import treeMenus from './aside-menu'
 export default {
-  data() {
-    return {}
-  },
   components: {
     treeMenus
   },
   computed:{
     ...mapState({
       sideCategory: state => state.sideCategory,
+      sideCategoryActiveIndex: state => state.sideCategoryActiveIndex
     })
   },
+  watch:{},
   methods: {
     ...mapMutations([
       'updateData'
     ]),
+    // 提交所选条目index
     selectFn(index) {
-      index  = index.split('-')
-      let breadNav = []
-
-      // 转译为名称
-      index.reduce((pre, cur) => {
-        const list = pre.list
-        breadNav.push(pre.title)
-        if(!list.length) return
-        return list[cur]
-      }, this.sideCategory.list[index[0]])
-
-      // 提交面包屑数据
-      this.updateData({ breadNav })
+      this.updateData({ selectIndex: index })
     },
   }
 }
@@ -64,7 +52,6 @@ export default {
 .el-aside {
   height: 100%;
   overflow-y: auto;
-  // padding-left: 50px;
 }
 .el-menu {
   text-align: left;

@@ -15,6 +15,11 @@ export const getCateList = (params) => {
   return _get('/list/category', { params })
 }
 
+// 获取当前所有文件夹
+export const getFolders = (params) => {
+  return _get('/list/folders', { params })
+}
+
 // 获取内容
 export const getContent = (params) => {
   return _get('/article/getContent', { params })

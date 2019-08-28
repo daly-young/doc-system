@@ -1,30 +1,8 @@
 <template>
   <div class="fe-create">
     <i class="el-icon-circle-close" @click="closeFn"></i>
-    <div class="fe-create-content" v-if="options.length">
-       <!-- new -->
+    <div class="fe-create-content">
       <div class="fe-create-input">
-        <span>选择路径：</span>
-        <el-cascader
-          v-model="value"
-          :options="options"
-          :props="props"
-          @change="handleChange"></el-cascader>
-        <!-- <el-link type="primary" size="middle" @click="siwtchFn">{{toCreate?'选择现有目录':'想要创建新目录'}}<i class="el-icon-plus" v-if="!toCreate"></i></el-link> -->
-      </div>
-      <div class="fe-create-input">
-        <span></span>
-        <el-input
-          placeholder="如需增加新层级，在此填写"
-          v-model="newFolder">
-        </el-input>
-      </div>
-      <!-- <el-cascader
-        :options="sideCategory.children"
-        :props="{ expandTrigger: 'hover', checkStrictly: false }"
-        clearable></el-cascader> -->
-      <!-- to drop -->
-      <!-- <div class="fe-create-input">
         <span>一级目录：</span>
         <el-cascader
           placeholder="试试搜索：指南"
@@ -40,13 +18,6 @@
           v-model="firstCate"
           v-else></el-input>
         <el-link type="primary" size="middle" @click="siwtchFn">{{toCreate?'选择现有目录':'想要创建新目录'}}<i class="el-icon-plus" v-if="!toCreate"></i></el-link>
-      </div> -->
-      <div class="fe-create-input">
-        <span>路径：</span>
-        <el-breadcrumb separator-class="el-icon-arrow-right">
-          <el-breadcrumb-item v-for="(item,index) in pathArr" :key="index">{{item}}</el-breadcrumb-item>
-          <el-breadcrumb-item>{{newFolder}}</el-breadcrumb-item>
-        </el-breadcrumb>
       </div>
       <div class="fe-create-input">
         <span>文章名称：</span>
@@ -57,11 +28,10 @@
         <el-button type="primary" size="middle" @click="createFn">创建</el-button>
       </div>
     </div>
-   
   </div>
 </template>
 <script>
-import { articleCreate, getFolders } from '@/assets/js/api'
+import { articleCreate } from '@/assets/js/api'
 import { mapMutations, mapState, mapActions } from 'vuex'
 
 export default {
@@ -72,49 +42,27 @@ export default {
       currentLabels: [],
       toCreate: false,
       firstCate: '',
-      selectObj: {},
-      value: [], // 选择路径
-      props: {
-        expandTrigger: 'hover',
-        checkStrictly: true
-      },
-      options: [],
-      newFolder: '',
-      pathArr: [] // 文章路径信息
+      selectObj: {}
     }
   },
   computed:{
     ...mapState({
-      // sideCategory: state => state.sideCategory
+      list: state => state.firstList
     })
   },
-  created() {
-    this.init()
-  },
   mounted(){
-    // console.log(this.sideCategory.children)
+    console.log(this.list)
   },
   methods:{
     ...mapMutations([
       'updateData',
     ]),
-    init() {
-      getFolders().then(({success, result})=>{
-        if(success) {
-          this.options = result
-        }
-      })
-    },
-    handleChange(value) {
-      let arr = value.reduce(( pre, cur )=>{
-        console.log(pre,'===pre',cur.label,'==cur')
-        pre.push(cur.label)
-        return pre
-      },[])
-      this.pathArr = arr
-    },
+    ...mapActions([
+      'getFirstListFn',
+      'getSecondListFn'
+    ]),
     chooseVal(val) {
-      // this.selectObj = this.list.find((item)=>item.value == val[0])
+      this.selectObj = this.list.find((item)=>item.value == val[0])
     },
     createFn() {
       if(!this.articleTitle) return
@@ -172,7 +120,7 @@ export default {
   width: 100%;
   height: 100%;
   background-color:rgba(0,0,0,.4);
-  z-index: 1999;
+  z-index: 99999;
   .el-icon-circle-close {
     position: fixed;
     top: 20%;
@@ -191,10 +139,6 @@ export default {
     min-height: 400px;
     border-radius: 4px;
     padding: 20px;
-    .el-input {
-      width: 50%!important;
-      margin-right: 20px;
-    }
   }
   &-input {
     margin-bottom: 20px;
@@ -210,14 +154,6 @@ export default {
       width: 50%;
       margin-right: 20px;
     }
-  }
-  .el-breadcrumb {
-    display: inline-block;
-    padding: 0 10px;
-    height: 40px;
-    line-height: 40px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
   }
 }
 </style>

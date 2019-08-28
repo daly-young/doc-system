@@ -6,7 +6,7 @@
   </div>
 </template>
 <script>
-import feHistory from '@/components/home/history.vue'
+import feHistory from './history.vue'
 import { articleDelete } from '@/assets/js/api'
 import { mapMutations, mapState, mapActions } from 'vuex'
 export default {
@@ -15,7 +15,7 @@ export default {
   },
   computed:{
     ...mapState({
-      curId: state => state.curId,
+      articleId: state => state.articleId,
       isLogin: state => state.isLogin,
     })
   },
@@ -51,13 +51,13 @@ export default {
       }
 
       articleDelete({
-        id: [this.curId]
+        id: this.articleId
       }).then(({ success, msg })=>{
         if(success) {
           this.$message('删除成功');
           // todo:然后展示切换到上一篇
-          // this.curId = 
-          this.$store.dispatch('getSecondListFn')
+          
+          window.location.reload()
         } else {
           this.$message.error(msg || '删除失败');
         }
@@ -80,7 +80,7 @@ button[class*="fe-"] {
   position: fixed;
   // bottom: 80px;
   right: 20px;
-  z-index: 2000;
+  z-index: 1999;
 }
 .fe-button-edit {
   bottom: 80px;
@@ -88,7 +88,7 @@ button[class*="fe-"] {
 .fe-history {
   position: fixed;
   right: 20px;
-  z-index: 2000;
+  z-index: 1999;
   bottom: 140px;
 }
 .fe-button-delete {

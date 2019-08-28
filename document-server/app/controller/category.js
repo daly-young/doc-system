@@ -31,6 +31,11 @@ class CategoryController extends Controller {
     const { ctx } = this;
     ctx.body = await ctx.service.category.getIncluded(ctx);
   }
+
+  async getFolders() {
+    const { ctx } = this;
+    ctx.body = await ctx.service.category.getFolders(ctx);
+  }
 }
 
 module.exports = CategoryController;
