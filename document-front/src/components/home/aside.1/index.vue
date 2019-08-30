@@ -1,7 +1,22 @@
 <template>
   <el-aside width="200px">
     <template v-if="sideCategory&&sideCategory.children.length">
-      <tree-menus :data="sideCategory.children"></tree-menus>
+      <el-menu 
+        background-color="transparent" 
+        text-color="#999" 
+        active-text-color="#409EFF" 
+        :default-active="sideCategoryActiveIndex" 
+        menu-trigger="click" 
+        :unique-opened="true"
+        @select="selectFn"
+        id="demo">
+        <tree-menus 
+          v-for="(item,index) in sideCategory.children"
+          :key="item.id"
+          :item="item"
+          :index="index.toString()"
+        ></tree-menus>
+      </el-menu>
     </template>
     <p v-else>暂无层级</p>
   </el-aside>
@@ -15,19 +30,19 @@ export default {
     treeMenus
   },
   computed:{
-    ...mapState( {
+    ...mapState({
       sideCategory: state => state.sideCategory,
       sideCategoryActiveIndex: state => state.sideCategoryActiveIndex
-    } )
+    })
   },
   watch:{},
   methods: {
-    ...mapMutations( [
+    ...mapMutations([
       'updateData'
-    ] ),
+    ]),
     // 提交所选条目index
-    selectFn( index ) {
-      this.updateData( { selectIndex: index } )
+    selectFn(index) {
+      this.updateData({ selectIndex: index })
     },
   }
 }

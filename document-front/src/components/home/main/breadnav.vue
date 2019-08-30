@@ -1,6 +1,7 @@
 <template>
+  <!-- 面包屑 -->
   <div class="breadcrumbBox">
-    <el-breadcrumb separator-class="el-icon-arrow-right">
+    <el-breadcrumb separator-class="el-icon-arrow-right" v-if="breadNav.length">
       <el-breadcrumb-item v-for="(item,index) in breadNav" :key="index">{{item}}</el-breadcrumb-item>
     </el-breadcrumb>
   </div>
@@ -10,53 +11,11 @@
 import { mapState } from 'vuex'
 
 export default {
-  data(){
-    return {
-      breadNav: []
-    }
-  },
   computed:{
-    ...mapState({
-      selectIndex: state => state.selectIndex,
-      sideCategory: state => state.sideCategory,
-      sideCategoryActiveIndex: state => state.sideCategoryActiveIndex
-    }),
+    ...mapState( {
+        breadNav: state => state.breadNav
+    } )
   },
-  watch:{
-    // 选中的时候更新
-      selectIndex(newVal) {
-        this.doConvert(newVal)
-      },
-      // 初始化的时候更新
-      sideCategoryActiveIndex(newVal) {
-        this.doConvert(newVal)
-      }
-  },
-  methods: {
-    doConvert(i) {
-        if(i) {
-          this.convertToBreadnav(i)
-        }else {
-          this.breadNav = []
-        }
-    },
-    // 转换成名称
-    convertToBreadnav(i) {
-      if(!i) return ''
-      const index  = i.split('-')
-      let arr = []
-
-      // 转译为名称
-      index.reduce((pre, cur) => {
-        const list = pre.children
-        arr.push(pre.label)
-        if(!list.length) return
-        return list[cur]
-      }, this.sideCategory.children[index[0]])
-
-      this.breadNav = arr
-    },
-  }
 }
 </script>
 

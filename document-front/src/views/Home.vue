@@ -67,7 +67,6 @@ export default {
 .el-aside {
   background-color: #fff;
   text-align: center;
-  line-height: 200px;
 }
 
 .el-main {

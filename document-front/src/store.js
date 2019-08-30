@@ -24,8 +24,8 @@ export default new Vuex.Store({
     articleId: -1, // 当前操作文章ID
     articleDetails: {},
     // activeIndex_second: '0',
+    selectItemIdList: [], // 选中条目的id，创建模板默认路径使用
     fromCreate: false, // 是否为创建面板
-    selectIndex: '', // 选中条目的index，供转换面包屑使用
     user: {
       activeIndex: '0',
       pagenationIndex: 0,
@@ -110,7 +110,7 @@ export default new Vuex.Store({
       }
       // 如果有缓存，优先使用缓存
       let data = sessionStorage.getItem('article_' + state.articleId)
-      console.log('artcile=====', data)
+      // console.log('artcile=====', data)
       if (data) {
         commit('updateData', {
           // curItem: JSON.parse(data),

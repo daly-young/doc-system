@@ -6,56 +6,33 @@
       <div class="fe-create-input">
         <span>选择路径：</span>
         <el-cascader
-          v-model="value"
+          v-model="defaultIds"
           :options="options"
           :props="props"
           @change="handleChange"></el-cascader>
-        <!-- <el-link type="primary" size="middle" @click="siwtchFn">{{toCreate?'选择现有目录':'想要创建新目录'}}<i class="el-icon-plus" v-if="!toCreate"></i></el-link> -->
       </div>
       <div class="fe-create-input">
-        <span></span>
+        <span>新增文件夹</span>
         <el-input
-          placeholder="如需增加新层级，在此填写"
+          placeholder="如需增加新层级，在此填写，可添加多级，例：新文件夹/新文件夹/"
           v-model="newFolder">
         </el-input>
       </div>
-      <!-- <el-cascader
-        :options="sideCategory.children"
-        :props="{ expandTrigger: 'hover', checkStrictly: false }"
-        clearable></el-cascader> -->
-      <!-- to drop -->
-      <!-- <div class="fe-create-input">
-        <span>一级目录：</span>
-        <el-cascader
-          placeholder="试试搜索：指南"
-          :options="list"
-          filterable
-          change-on-select
-          @change="chooseVal"
-          ref="cascaderLabels"
-          :popper-class="'fe-cascader'"
-          v-if="!toCreate"></el-cascader>
-          <el-input
-          placeholder="请填写一级目录名称"
-          v-model="firstCate"
-          v-else></el-input>
-        <el-link type="primary" size="middle" @click="siwtchFn">{{toCreate?'选择现有目录':'想要创建新目录'}}<i class="el-icon-plus" v-if="!toCreate"></i></el-link>
-      </div> -->
-      <div class="fe-create-input">
+      <!-- <div class="fe-create-input" v-if="pathArr.length">
         <span>路径：</span>
         <el-breadcrumb separator-class="el-icon-arrow-right">
           <el-breadcrumb-item v-for="(item,index) in pathArr" :key="index">{{item}}</el-breadcrumb-item>
           <el-breadcrumb-item>{{newFolder}}</el-breadcrumb-item>
         </el-breadcrumb>
-      </div>
+      </div> -->
       <div class="fe-create-input">
         <span>文章名称：</span>
         <el-input
-          placeholder="请填写文章标题"
+          placeholder="请填写文章标题，可不填，只创建文件夹"
           v-model="articleTitle">
         </el-input>
-        <el-button type="primary" size="middle" @click="createFn">创建</el-button>
       </div>
+      <el-button type="primary" @click="createFn">创建</el-button>
     </div>
    
   </div>
@@ -67,95 +44,101 @@ import { mapMutations, mapState, mapActions } from 'vuex'
 export default {
   data() {
     return {
-      selectId: -1,
-      articleTitle:'',
-      currentLabels: [],
-      toCreate: false,
-      firstCate: '',
-      selectObj: {},
-      value: [], // 选择路径
+      articleTitle:'', // 新建文章名称
+      value: [4, 8], // 级联选择器选择路径
       props: {
-        expandTrigger: 'hover',
         checkStrictly: true
       },
       options: [],
       newFolder: '',
-      pathArr: [] // 文章路径信息
+      pathArr: [], // 文章路径信息
     }
   },
   computed:{
-    ...mapState({
-      // sideCategory: state => state.sideCategory
-    })
+    ...mapState( {
+      // sideCategory: state => state.sideCategory,
+      selectItemIdList: state => state.selectItemIdList
+    } ),
+    defaultIds: {
+      get() {
+        return this.selectItemIdList && this.selectItemIdList.slice( 0, this.selectItemIdList.length - 1 )
+      },
+      set( val ) {
+        return val
+      }
+    }
   },
   created() {
     this.init()
   },
-  mounted(){
-    // console.log(this.sideCategory.children)
-  },
+  mounted(){},
   methods:{
-    ...mapMutations([
+    ...mapMutations( [
       'updateData',
-    ]),
+    ] ),
     init() {
-      getFolders().then(({success, result})=>{
-        if(success) {
+      // 获取所有文件夹
+      getFolders().then( ( {success, result} )=>{
+        if( success ) {
           this.options = result
         }
-      })
+      } )
     },
-    handleChange(value) {
-      let arr = value.reduce(( pre, cur )=>{
-        console.log(pre,'===pre',cur.label,'==cur')
-        pre.push(cur.label)
-        return pre
-      },[])
-      this.pathArr = arr
-    },
-    chooseVal(val) {
-      // this.selectObj = this.list.find((item)=>item.value == val[0])
+    // 选择路径信息展示
+    handleChange( value ) {
+      console.log( value )
     },
     createFn() {
-      if(!this.articleTitle) return
-      let {id,index} = this.selectObj
-      articleCreate({
-        first_cate: this.firstCate,
-        title: this.articleTitle,
-        parent_id: this.toCreate ? -1 : id,
-      }).then(({success, result, msg})=>{
-        if(success) {
-          this.updateData({
-              createShow: false,
-              switchEditor: true,
-              fromCreate: true,
-              curItem: {},
-              curId: result.id,
-            })
-          if(this.toCreate) {
-            // 刷新一级目录,会自动刷新二级目录
-            this.$store.dispatch('getFirstListFn')
-            // 切换面板
-          }else {
-            // 切换面板
-            // 组装curItem
-            // 存储curId
-            // 关闭创建面板
-            this.updateData({
-              firstId:  id,
-              activeIndex_first: index.toString(),
-            })
-            this.$store.dispatch('getSecondListFn')
-          }
+      // console.log(this.value)
+      // 没有文章不创建
+      if( !( this.articleTitle || this.newFolder ) ) {
+        this.$message.error( '请填写创建文件夹名称或者文章名称' );
+        return
+      }
+
+      // 数组=》去空=》转字符串
+      const folders = this.newFolder.split( '/' ).filter( Boolean ).join( ',' )
+      const parentId = this.defaultIds[this.defaultIds.length - 1]
+      // console.log( folders )
+      
+      articleCreate( {
+        parentId,
+        folders,
+        articleTitle: this.articleTitle,
+      } ).then( ( {success, result, msg} )=>{
+        if( success ) {
+          // 关闭创建面板=》修改默认id序列=》提交生成文章的ID=》调出编辑面板
+          this.updateData( {
+            createShow: false,
+            switchEditor: true,
+            // fromCreate: true,
+            // curItem: {},
+            articleId: result.id,
+          } )
+          // if( this.toCreate ) {
+          //   // 刷新一级目录,会自动刷新二级目录
+          //   this.$store.dispatch( 'getFirstListFn' )
+          //   // 切换面板
+          // } else {
+          //   // 切换面板
+          //   // 组装curItem
+          //   // 存储curId
+          //   // 关闭创建面板
+          //   this.updateData( {
+          //     firstId:  id,
+          //     activeIndex_first: index.toString(),
+          //   } )
+          //   this.$store.dispatch( 'getSecondListFn' )
+          // }
         } else {
-            this.$message.error(msg || '创建失败');
+            this.$message.error( msg || '创建失败' );
         }
-      })
+      } )
     },
     closeFn() {
-      this.updateData({
+      this.updateData( {
         createShow: false,
-      })
+      } )
     },
     siwtchFn() {
       this.toCreate = !this.toCreate
@@ -203,21 +186,26 @@ export default {
       width: 160px;
     }
     .el-input {
-      width: 50%!important;
+      width: 70%!important;
       margin-right: 20px;
     }
     .el-cascader {
-      width: 50%;
+      width: 70%;
       margin-right: 20px;
     }
   }
-  .el-breadcrumb {
-    display: inline-block;
-    padding: 0 10px;
-    height: 40px;
-    line-height: 40px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
+  // .el-breadcrumb {
+  //   display: inline-block;
+  //   padding: 0 10px;
+  //   height: 40px;
+  //   line-height: 40px;
+  //   border-radius: 4px;
+  //   border: 1px solid #ccc;
+  // }
+  .el-button {
+    display: block;
+    width: 70%;
+    margin: 0 auto;
   }
 }
 </style>

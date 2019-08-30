@@ -32,41 +32,41 @@ export default {
     }
   },
   computed:{
-    ...mapState({
+    ...mapState( {
       articleId: state => state.articleId,
       articleDetails: state => state.articleDetails,
-    })
+    } )
   },
   created() {
     this.value = this.articleDetails.md || ''
   },
   methods:{
-    ...mapMutations([
+    ...mapMutations( [
       'updateData',
-    ]),
+    ] ),
     saveData() {
       // todo:通知修改展示状态
-      articleUpdate({
+      articleUpdate( {
         id: this.articleId,
         content: this.render,
         md: this.value
-      }).then(({ success, msg })=>{
-        if(success) {
-          sessionStorage.removeItem('article_' + this.articleId)
-          this.$store.dispatch('getArticle')
+      } ).then( ( { success, msg } )=>{
+        if( success ) {
+          sessionStorage.removeItem( 'article_' + this.articleId )
+          this.$store.dispatch( 'getArticle' )
           this.cancelFn()
         } else {
-          this.$message.error(msg || '更新失败');
+          this.$message.error( msg || '更新失败' );
         }
-      })
+      } )
     },
-    changeData(value, render) {
+    changeData( value, render ) {
         this.render = render
     },
     cancelFn() {
-      this.updateData({
+      this.updateData( {
         switchEditor: false
-      })
+      } )
     }
   }
 }
