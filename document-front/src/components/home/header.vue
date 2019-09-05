@@ -60,91 +60,91 @@ export default {
     }
   },
   computed: {
-    ...mapState({
+    ...mapState( {
       category: state => state.category,
       activeIndex: state => state.activeIndex,
       switchEditor: state => state.switchEditor,
-    }),
+    } ),
     searchIndex() {
-      return (this.category.length+1).toString()
+      return ( this.category.length + 1 ).toString()
     },
     userIndex() {
-      return (this.category.length+2).toString()
+      return ( this.category.length + 2 ).toString()
     }
   },
   created() {
     this.init()
   },
   methods:{
-    ...mapMutations([
+    ...mapMutations( [
       'updateData',
       'updateSideCategory'
-    ]),
-    ...mapActions([
+    ] ),
+    ...mapActions( [
       'getCateListFn',
-    ]),
+    ] ),
     init() {
       // 获取用户信息
       this.getUser()
       // 获取所有分类信息
-      this.$store.dispatch('getCateListFn')
+      this.$store.dispatch( 'getCateListFn' )
     },
     getUser() {
-      userInfo().then(({success,result,code,msg})=>{
-        if(success) {
+      userInfo().then( ( {success, result, code, msg} )=>{
+        if( success ) {
             this.isLogin = true
             this.userName = result.user_name
         }else {
-          if(code===1999) {
+          if( code === 1999 ) {
             this.isLogin = false
           }else {
-            this.$message.error(msg || '错了哦，这是一条错误消息');
+            this.$message.error( msg || '错了哦，这是一条错误消息' );
           }
         }
         // 提交登录状态
-        this.updateData({
+        this.updateData( {
           isLogin: this.isLogin
-        })
-      })
+        } )
+      } )
     },
     backHome() {
-      this.$router.push('/')
+      this.$router.push( '/' )
     },
     // 切换选项
-    changeList({id}) {
-      this.updateSideCategory({
+    changeList( {id} ) {
+      this.updateSideCategory( {
         firstLevelId: id,
-      })
+      } )
     },
     // 搜索功能
     searchFn() {
-      searchAll({
+      searchAll( {
         keywords:  this.keywords
-      }).then(()=>{})
+      } ).then( ()=>{} )
     },
     // 创建新文章
     createFn() {
       // 编辑状态不可创建
-      if(this.switchEditor) {
-        this.$message({
+      if( this.switchEditor ) {
+        this.$message( {
           message: '请先保存编辑模板',
           type: 'warning'
-        });
+        } );
         return
       }
       // 插入新数据，切换书写模板，清空数据
-      this.updateData({
+      this.updateData( {
         createShow: true
-      })
+      } )
     },
     // 登录
     login() {
-      this.$router.push({
+      this.$router.push( {
         path: '/login',
         query: {
-          backUrl: encodeURI(window.location.href)
+          backUrl: encodeURI( window.location.href )
         }
-      })
+      } )
     }
   }
 }

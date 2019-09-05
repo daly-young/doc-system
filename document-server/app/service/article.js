@@ -5,16 +5,62 @@ const { transliterate } = require('transliteration');
 class ArticleService extends Service {
   async create(params) {
     const data = new this.ctx.helper.Ajaxresult();
+    const { articleTitle, parentId, folders } = params;
+    const { app } = this;
+
+    // -------------创建文件夹&&文章-------------------
+    let lastId = '';
+    if (folders) {
+      const folderArr = folders.split(',');
+      console.log(folderArr);
+      for (let i = 0; i < folderArr.length; i++) {
+        // 创建目录
+        const resultLevel = await this.app.mysql.insert('fe_level', {
+          parent_id: lastId || parentId,
+          creator: this.ctx.cookies.get('userId', { encrypt: true }),
+          title: folderArr[i],
+          value: transliterate(folderArr[i]),
+          modify_time: this.app.mysql.literals.now,
+        });
+        lastId = resultLevel.insertId;
+      }
+
+    }
 
     // 创建文章
     const result = await this.app.mysql.insert('fe_article', {
-      article_name: params.title,
+      article_name: params.articleTitle,
       user_id: this.ctx.cookies.get('userId', { encrypt: true }),
       create_time: this.app.mysql.literals.now,
       modify_time: this.app.mysql.literals.now,
     });
     const success = result.affectedRows === 1;
+    if (!success) {
+      return data.fail({
+        code: 20001,
+        msg: '创建文章失败，请重试',
+      });
+    }
 
+    // 创建目录，有lastId，说明有新文件夹，用新的文件夹
+    const { insertId } = result;
+    console.log(lastId, typeof lastId, '===lastId');
+    const pid = await lastId || parentId;
+    const resultLevel = await this.app.mysql.insert('fe_level', {
+      parent_id: pid,
+      creator: this.ctx.cookies.get('userId', { encrypt: true }),
+      title: articleTitle,
+      article_id: insertId,
+      value: transliterate(articleTitle),
+      modify_time: this.app.mysql.literals.now,
+    });
+    const successLevel = resultLevel.affectedRows === 1;
+    if (!successLevel) {
+      return data.fail({
+        code: 20001,
+        msg: '创建目录失败，请重试',
+      });
+    }
 
     // 创建历史记录
     const result_history = await this.app.mysql.insert('fe_history', {
@@ -24,48 +70,16 @@ class ArticleService extends Service {
       modify_time: this.app.mysql.literals.now,
     });
     const success_history = result_history.affectedRows === 1;
-
-    // 创建一级目录
-    let result_cate_first = {};
-    if (Number(params.parent_id) === -1) {
-      result_cate_first = await this.app.mysql.insert('fe_cate_first', {
-        title: params.first_cate,
-        label: params.first_cate,
-        value: transliterate(params.title),
-        user_id: this.ctx.cookies.get('userId', { encrypt: true }),
-        create_time: this.app.mysql.literals.now,
+    if (!success_history) {
+      return data.fail({
+        code: 20001,
+        msg: '创建历史记录失败，请重试',
       });
-      if (result_cate_first.affectedRows !== 1) {
-        return data.fail({
-          code: 20001,
-          msg: '创建一级目录失败',
-        });
-      }
     }
 
-    // 添加二级目录
-    const result_cate = await this.app.mysql.insert('fe_cate_second', {
-      parent_id: result_cate_first.insertId || params.parent_id,
-      user_id: this.ctx.cookies.get('userId', { encrypt: true }),
-      create_time: this.app.mysql.literals.now,
-      name: params.title,
-      article_id: result.insertId,
+    return data.successFn({
+      id: resultLevel.insertId,
     });
-    const success_cate = result_cate.affectedRows === 1;
-
-
-    if (success && success_history && success_cate) {
-      return data.successFn({
-        id: result.insertId,
-        secondListId: result_cate.insertId,
-      });
-    } else if (!success) {
-      return data.fail({ code: 20002, msg: '创建文章失败' });
-    } else if (!success_history) {
-      return data.fail({ code: 20003, msg: '插入历史记录失败' });
-    } else if (!success_cate) {
-      return data.fail({ code: 10006, msg: '创建二级目录失败' });
-    }
   }
 
   async update(param) {

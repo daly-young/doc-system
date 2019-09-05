@@ -5,6 +5,8 @@
     @node-click="handleNodeClick"
     highlight-current
     default-expand-all
+    :expand-on-click-node="false"
+    ref="tree"
   ></el-tree>
 </template>
 <script>
@@ -15,17 +17,24 @@ export default {
   props:{
     data: Array, // 树状结构
   },
+  data() {
+    return {
+    }
+  },
   mounted(){
     // 初始化提交，默认序列
     this.updateData( {
       selectItemIdList: this.data[0].idList,
     } )
+    // this.$refs.tree.setCurrentKey( 15 )
+
   },
   methods: {
     ...mapMutations( [
       'updateData',
     ] ),
     handleNodeClick( obj ) {
+      console.log( obj )
       const {article_id, idList, path} = obj
       // 上传操作文章ID，并请求文章
       if( article_id ) {

@@ -1,5 +1,8 @@
 'use strict';
+
+
 const Service = require('egg').Service;
+// const { transliterate } = require('transliteration');
 // const Ajaxresult = require('../utils/result');
 
 class CategoryService extends Service {
@@ -37,11 +40,14 @@ class CategoryService extends Service {
     return data.successFn(res);
   }
 
-  async range(arr, pid = 0) {
+  async range(arr, pid = 0, idList = [], path = []) {
     const temp = [];
     for (const item of arr) {
       if (item.parent_id === pid) {
-        item.children = await this.range(arr, item.id);
+        // console.log(idList, '=====');
+        item.idList = !pid ? [ item.id ] : [ ...idList, item.id ];
+        item.path = !pid ? [ item.label ] : [ ...path, item.label ];
+        item.children = await this.range(arr, item.id, item.idList, item.path);
         temp.push(item);
       }
     }
@@ -51,14 +57,10 @@ class CategoryService extends Service {
   async filterFolder(arr, pid = 0) {
     const temp = [];
     for (const item of arr) {
-      if (item.parent_id === pid && item.children_count) {
+      if (item.parent_id === pid) {
         const res = await this.filterFolder(arr, item.id);
         res.length && (item.children = res);
-        // elmentui返回的操作数据只有value，所以在这处理一下，返回需要的数据对象
-        item.value = {
-          id: item.id,
-          label: item.label,
-        };
+        item.value = item.id;
         temp.push(item);
       }
     }

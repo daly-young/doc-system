@@ -46,64 +46,64 @@ export default {
     }
   },
   computed:{
-    ...mapState({
+    ...mapState( {
       list: state => state.firstList
-    })
+    } )
   },
   mounted(){
-    console.log(this.list)
+    console.log( this.list )
   },
   methods:{
-    ...mapMutations([
+    ...mapMutations( [
       'updateData',
-    ]),
-    ...mapActions([
+    ] ),
+    ...mapActions( [
       'getFirstListFn',
       'getSecondListFn'
-    ]),
-    chooseVal(val) {
-      this.selectObj = this.list.find((item)=>item.value == val[0])
+    ] ),
+    chooseVal( val ) {
+      this.selectObj = this.list.find( ( item )=>item.value == val[0] )
     },
     createFn() {
-      if(!this.articleTitle) return
-      let {id,index} = this.selectObj
-      articleCreate({
+      if( !this.articleTitle ) return
+      let {id, index} = this.selectObj
+      articleCreate( {
         first_cate: this.firstCate,
         title: this.articleTitle,
         parent_id: this.toCreate ? -1 : id,
-      }).then(({success, result, msg})=>{
-        if(success) {
-          this.updateData({
+      } ).then( ( {success, result, msg} )=>{
+        if( success ) {
+          this.updateData( {
               createShow: false,
               switchEditor: true,
               fromCreate: true,
               curItem: {},
               curId: result.id,
-            })
-          if(this.toCreate) {
+            } )
+          if( this.toCreate ) {
             // 刷新一级目录,会自动刷新二级目录
-            this.$store.dispatch('getFirstListFn')
+            this.$store.dispatch( 'getFirstListFn' )
             // 切换面板
           }else {
             // 切换面板
             // 组装curItem
             // 存储curId
             // 关闭创建面板
-            this.updateData({
+            this.updateData( {
               firstId:  id,
               activeIndex_first: index.toString(),
-            })
-            this.$store.dispatch('getSecondListFn')
+            } )
+            this.$store.dispatch( 'getSecondListFn' )
           }
         } else {
-            this.$message.error(msg || '创建失败');
+            this.$message.error( msg || '创建失败' );
         }
-      })
+      } )
     },
     closeFn() {
-      this.updateData({
+      this.updateData( {
         createShow: false,
-      })
+      } )
     },
     siwtchFn() {
       this.toCreate = !this.toCreate

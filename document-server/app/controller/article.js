@@ -9,8 +9,8 @@ class ArticleController extends Controller {
     try {
       ctx.validate({
         // first_cate: { type: 'string', require: false, default: '' },
-        title: { type: 'string', require: true },
-        parent_id: { type: 'string', require: true },
+        articleTitle: { type: 'string', require: true },
+        parentId: { type: 'string', require: true },
       });
     } catch (err) {
       ctx.logger.warn(err.errors);

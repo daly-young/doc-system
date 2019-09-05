@@ -18,13 +18,6 @@
           v-model="newFolder">
         </el-input>
       </div>
-      <!-- <div class="fe-create-input" v-if="pathArr.length">
-        <span>路径：</span>
-        <el-breadcrumb separator-class="el-icon-arrow-right">
-          <el-breadcrumb-item v-for="(item,index) in pathArr" :key="index">{{item}}</el-breadcrumb-item>
-          <el-breadcrumb-item>{{newFolder}}</el-breadcrumb-item>
-        </el-breadcrumb>
-      </div> -->
       <div class="fe-create-input">
         <span>文章名称：</span>
         <el-input
@@ -39,7 +32,7 @@
 </template>
 <script>
 import { articleCreate, getFolders } from '@/assets/js/api'
-import { mapMutations, mapState, mapActions } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 
 export default {
   data() {
@@ -57,11 +50,11 @@ export default {
   computed:{
     ...mapState( {
       // sideCategory: state => state.sideCategory,
-      selectItemIdList: state => state.selectItemIdList
+      selectItemIdList: state => state.selectItemIdList,
     } ),
     defaultIds: {
       get() {
-        return this.selectItemIdList && this.selectItemIdList.slice( 0, this.selectItemIdList.length - 1 )
+        return this.selectItemIdList
       },
       set( val ) {
         return val
@@ -86,10 +79,10 @@ export default {
     },
     // 选择路径信息展示
     handleChange( value ) {
-      console.log( value )
+      console.log( value, '======' )
+      this.defaultIds = value
     },
     createFn() {
-      // console.log(this.value)
       // 没有文章不创建
       if( !( this.articleTitle || this.newFolder ) ) {
         this.$message.error( '请填写创建文件夹名称或者文章名称' );
@@ -99,8 +92,6 @@ export default {
       // 数组=》去空=》转字符串
       const folders = this.newFolder.split( '/' ).filter( Boolean ).join( ',' )
       const parentId = this.defaultIds[this.defaultIds.length - 1]
-      // console.log( folders )
-      
       articleCreate( {
         parentId,
         folders,
@@ -111,25 +102,8 @@ export default {
           this.updateData( {
             createShow: false,
             switchEditor: true,
-            // fromCreate: true,
-            // curItem: {},
             articleId: result.id,
           } )
-          // if( this.toCreate ) {
-          //   // 刷新一级目录,会自动刷新二级目录
-          //   this.$store.dispatch( 'getFirstListFn' )
-          //   // 切换面板
-          // } else {
-          //   // 切换面板
-          //   // 组装curItem
-          //   // 存储curId
-          //   // 关闭创建面板
-          //   this.updateData( {
-          //     firstId:  id,
-          //     activeIndex_first: index.toString(),
-          //   } )
-          //   this.$store.dispatch( 'getSecondListFn' )
-          // }
         } else {
             this.$message.error( msg || '创建失败' );
         }
