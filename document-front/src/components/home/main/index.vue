@@ -4,7 +4,7 @@
     <normal v-if="!switchEditor"></normal>
     <edit v-else></edit>
     <!-- 只有常规展示以及可获取的文章可以展示 -->
-    <side-btns v-if="!switchEditor && articleDetails.id"></side-btns>
+    <side-btns v-if="!switchEditor"></side-btns>
   </el-main>
 </template>
 <script>
@@ -22,10 +22,10 @@ export default {
     sideBtns
   },
   computed: {
-    ...mapState({
+    ...mapState( {
       switchEditor: state => state.switchEditor,
       articleDetails: state => state.articleDetails
-    })
+    } )
   }
 }
 </script>

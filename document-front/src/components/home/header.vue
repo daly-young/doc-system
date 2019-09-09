@@ -111,9 +111,10 @@ export default {
       this.$router.push( '/' )
     },
     // 切换选项
-    changeList( {id} ) {
+    changeList( {id, label} ) {
       this.updateSideCategory( {
         firstLevelId: id,
+        breadNav: [label] // 面包屑
       } )
     },
     // 搜索功能

@@ -7,22 +7,6 @@ const Service = require('egg').Service;
 
 class CategoryService extends Service {
 
-  async getlist() {
-    const results = await this.app.mysql.select('fe_cate_first');
-    const data = new this.ctx.helper.Ajaxresult();
-    return data.successFn(results);
-
-  }
-
-  async getsecond(param) {
-    const results = await this.app.mysql.select('fe_cate_second', {
-      where: { parent_id: param.id },
-      limit: 0,
-    });
-    const data = new this.ctx.helper.Ajaxresult();
-    return data.successFn(results);
-  }
-
   async getIncluded() {
     // const result = await this.app.mysql.query('SELECT s.id, s.title, s.parent_id FROM fe_level AS p LEFT JOIN fe_level AS  s ON s.parent_id = p.id;');
     // 查找所有分类及其子类的数目

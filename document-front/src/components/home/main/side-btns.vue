@@ -2,7 +2,7 @@
   <div>
     <el-button type="primary" icon="el-icon-edit" plain circle class="fe-button-edit" @click="switchFn"></el-button>
     <fe-history></fe-history>
-    <el-button type="danger" icon="el-icon-delete" plain circle class="fe-button-delete" @click="showDialog"></el-button>
+    <el-button type="danger" icon="el-icon-delete" plain circle class="fe-button-delete" @click="showDialog" v-if="showDelete"></el-button>
   </div>
 </template>
 <script>
@@ -14,62 +14,60 @@ export default {
     feHistory
   },
   computed:{
-    ...mapState({
+    ...mapState( {
       articleId: state => state.articleId,
+      articleDetails: state => state.articleDetails,
       isLogin: state => state.isLogin,
-    })
+      childrenCount: state => state.childrenCount
+    } ),
+    showDelete() {
+      // console.log( this.articleDetails.hasRight, this.childrenCount )
+      // 只有是本人创建，并且没有子集的才可以删除
+      return this.articleDetails.hasRight && !this.childrenCount
+    }
   },
   methods:{
-    ...mapMutations([
+    ...mapMutations( [
       'updateData',
-    ]),
-    ...mapActions([
+    ] ),
+    ...mapActions( [
       'getSecondListFn',
-    ]),
+    ] ),
     showDialog() {
-      this.$confirm('确定要删除该文章?', '提示', {
+      this.$confirm( '确定要删除该文章?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }).then(() => {
-          // this.$message({
-          //   type: 'success',
-          //   message: '删除成功!'
-          // });
+        } ).then( () => {
           this.deleteFn()
-        }).catch(() => {
-          // this.$message({
-          //   type: 'info',
-          //   message: '已取消删除'
-          // });          
-        });
+        } )
     },
     deleteFn() {
-      if(!this.isLogin) {
-        this.$router.push('/login')
+      if( !this.isLogin ) {
+        this.$router.push( '/login' )
         return 
       }
 
-      articleDelete({
-        id: this.articleId
-      }).then(({ success, msg })=>{
-        if(success) {
-          this.$message('删除成功');
+      articleDelete( {
+        id: this.articleId,
+      } ).then( ( { success, msg } )=>{
+        if( success ) {
+          this.$message( '删除成功' );
           // todo:然后展示切换到上一篇
           
           window.location.reload()
         } else {
-          this.$message.error(msg || '删除失败');
+          this.$message.error( msg || '删除失败' );
         }
-      })
+      } )
     },
     switchFn() {
-      if(!this.isLogin) {
-        this.$router.push('/login')
-      }else {
-        this.updateData({
+      if( !this.isLogin ) {
+        this.$router.push( '/login' )
+      } else {
+        this.updateData( {
           switchEditor: true
-        })
+        } )
       }
     }
   }

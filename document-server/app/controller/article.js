@@ -23,6 +23,25 @@ class ArticleController extends Controller {
     ctx.body = await ctx.service.article.create(param);
   }
 
+  async createArticle() {
+    const { ctx } = this;
+    const param = ctx.request.body;
+    try {
+      ctx.validate({
+        articleTitle: { type: 'string', require: true },
+        parentId: { type: 'string', require: true },
+      });
+    } catch (err) {
+      ctx.logger.warn(err.errors);
+      const data = new this.ctx.helper.Ajaxresult();
+      ctx.body = data.fail({
+        code: 10001,
+      });
+      return;
+    }
+    ctx.body = await ctx.service.article.createArticle(param);
+  }
+
   async update() {
     const { ctx } = this;
     const param = ctx.request.body;
@@ -46,19 +65,20 @@ class ArticleController extends Controller {
   async delete() {
     const { ctx } = this;
     const params = ctx.query;
-    try {
-      ctx.validate({
-        id: { type: 'Array' },
-        cateId: { type: 'Array' },
-      }, ctx.query);
-    } catch (err) {
-      ctx.logger.warn(err.errors);
-      const data = new this.ctx.helper.Ajaxresult();
-      ctx.body = data.fail({
-        code: 10001,
-      });
-      return;
-    }
+    console.log(typeof params.id);
+    // try {
+    //   ctx.validate({
+    //     id: { require: true },
+    //     // cateId: { type: 'Array' },
+    //   }, params);
+    // } catch (err) {
+    //   ctx.logger.warn(err.errors);
+    //   const data = new this.ctx.helper.Ajaxresult();
+    //   ctx.body = data.fail({
+    //     code: 10001,
+    //   });
+    //   return;
+    // }
     ctx.body = await ctx.service.article.delete(params);
   }
 

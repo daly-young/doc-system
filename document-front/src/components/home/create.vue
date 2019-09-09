@@ -9,7 +9,8 @@
           v-model="defaultIds"
           :options="options"
           :props="props"
-          @change="handleChange"></el-cascader>
+          @change="handleChange"
+          ref="myCascader"></el-cascader>
       </div>
       <div class="fe-create-input">
         <span>新增文件夹</span>
@@ -45,6 +46,7 @@ export default {
       options: [],
       newFolder: '',
       pathArr: [], // 文章路径信息
+      defaultIds: []
     }
   },
   computed:{
@@ -52,19 +54,15 @@ export default {
       // sideCategory: state => state.sideCategory,
       selectItemIdList: state => state.selectItemIdList,
     } ),
-    defaultIds: {
-      get() {
-        return this.selectItemIdList
-      },
-      set( val ) {
-        return val
-      }
-    }
   },
   created() {
     this.init()
   },
-  mounted(){},
+  mounted(){
+    this.$nextTick( ()=>{
+      this.defaultIds = this.selectItemIdList
+    } )
+  },
   methods:{
     ...mapMutations( [
       'updateData',
@@ -79,8 +77,8 @@ export default {
     },
     // 选择路径信息展示
     handleChange( value ) {
-      console.log( value, '======' )
       this.defaultIds = value
+      this.pathArr = this.$refs.myCascader.getCheckedNodes()[0].pathLabels
     },
     createFn() {
       // 没有文章不创建
@@ -91,6 +89,7 @@ export default {
 
       // 数组=》去空=》转字符串
       const folders = this.newFolder.split( '/' ).filter( Boolean ).join( ',' )
+      console.log( this.defaultIds, '=======this.defaultIds' )
       const parentId = this.defaultIds[this.defaultIds.length - 1]
       articleCreate( {
         parentId,
@@ -99,11 +98,21 @@ export default {
       } ).then( ( {success, result, msg} )=>{
         if( success ) {
           // 关闭创建面板=》修改默认id序列=》提交生成文章的ID=》调出编辑面板
+          // console.log( result )
+          // 更新面包屑
+          this.pathArr = [...this.pathArr, ...this.newFolder.split( '/' )]
+          this.pathArr.push( this.articleTitle )
+
+          // 更新数据
           this.updateData( {
             createShow: false,
             switchEditor: true,
-            articleId: result.id,
+            articleId: result.article_id,
+            curCateKey: result.id,
+            breadNav: this.pathArr,
+            articleDetails: {}
           } )
+          this.$store.dispatch( 'refreshCate' )
         } else {
             this.$message.error( msg || '创建失败' );
         }

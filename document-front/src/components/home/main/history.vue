@@ -35,13 +35,13 @@ export default {
     }
   },
   computed:{
-    ...mapState({
+    ...mapState( {
        articleId: state => state.articleId,
-    })
+    } )
   },
   watch:{
-    articleId(newVal) {
-      if(newVal) {
+    articleId( newVal ) {
+      if( newVal ) {
         this.visible = false
       }
     }
@@ -52,16 +52,20 @@ export default {
       this.visible && this.getData()
     },
     getData() {
-      getHistory({
+      if( !this.articleId ) {
+        this.gridData = []
+        return
+      }
+      getHistory( {
         id: this.articleId
-      }).then(({success, result, msg})=>{
-        if(success){
+      } ).then( ( {success, result, msg} )=>{
+        if( success ){
           this.gridData = result
           this.visible = true
         } else {
-          this.$message.error(msg||'获取失败');
+          this.$message.error( msg || '获取失败' );
         }
-      })
+      } )
     }
   }
 }

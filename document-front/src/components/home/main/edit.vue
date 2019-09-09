@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { articleUpdate } from '@/assets/js/api'
+import { articleUpdate, articleCreateOnly } from '@/assets/js/api'
 import { mapState, mapMutations } from 'vuex';
 export default {
   name: 'feMain',
@@ -35,6 +35,8 @@ export default {
     ...mapState( {
       articleId: state => state.articleId,
       articleDetails: state => state.articleDetails,
+      selectItemIdList: state => state.selectItemIdList,
+      breadNav: state => state.breadNav
     } )
   },
   created() {
@@ -46,6 +48,16 @@ export default {
     ] ),
     saveData() {
       // todo:通知修改展示状态
+      // 有ID更新，没有创建
+      console.log( this.articleId, '=====artID' )
+      if( this.articleId ) {
+        this.updateFn()
+      } else {
+        this.createFn()
+      }
+      
+    },
+    updateFn() {
       articleUpdate( {
         id: this.articleId,
         content: this.render,
@@ -57,6 +69,27 @@ export default {
           this.cancelFn()
         } else {
           this.$message.error( msg || '更新失败' );
+        }
+      } )
+    },
+    createFn() {
+      articleCreateOnly( {
+        parentId: this.selectItemIdList[this.selectItemIdList.length - 1],
+        articleTitle: this.breadNav[this.breadNav.length - 1],
+        content: this.render,
+        md: this.value
+      } ).then( ( {success, result, msg} )=>{
+        if( success ) {
+          // 关闭创建面板=》修改默认id序列=》提交生成文章的ID=》调出编辑面板
+          this.updateData( {
+            articleId: result.articleId,
+            switchEditor: false,
+            curCateKey: result.cateId
+          } )
+          this.$store.dispatch( 'refreshCate' )
+          this.$store.dispatch( 'getArticle' )
+        } else {
+            this.$message.error( msg || '创建失败' );
         }
       } )
     },

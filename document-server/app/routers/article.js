@@ -7,6 +7,9 @@ module.exports = app => {
   // 创建文章
   router.post('/article/create', isLogin, controller.article.create);
 
+  // 创建文章挂钩到已有目录
+  router.post('/article/articleCreateOnly', isLogin, controller.article.createArticle);
+
   // 更新文章
   router.put('/article/update', isLogin, controller.article.update);
 

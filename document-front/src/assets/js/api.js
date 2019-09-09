@@ -35,6 +35,10 @@ export const articleCreate = ( params ) => {
   return _post( '/article/create', params )
 }
 
+export const articleCreateOnly = ( params ) => {
+  return _post( '/article/articleCreateOnly', params )
+}
+
 // 更新文章
 export const articleUpdate = ( params ) => {
   return _put( '/article/update', params )

@@ -10,15 +10,32 @@
   ></el-tree>
 </template>
 <script>
-import { mapMutations } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
+import { setTimeout } from 'timers';
 
 export default {
   name: 'treeMenus',
   props:{
     data: Array, // 树状结构
+    curCateKey: [Number, String]
   },
   data() {
     return {
+    }
+  },
+  computed: {
+    ...mapState( {
+      // curCateKey: state => state.curCateKey
+    } )
+  },
+  watch:{
+    curCateKey( newVal ) {
+      // console.log( newVal, '======', oldVal, '======Val' )
+      if( newVal != '' ) {
+        setTimeout( ()=>{
+          this.$refs.tree.setCurrentKey( newVal )
+        }, 0 )
+      }
     }
   },
   mounted(){
@@ -26,7 +43,6 @@ export default {
     this.updateData( {
       selectItemIdList: this.data[0].idList,
     } )
-    // this.$refs.tree.setCurrentKey( 15 )
 
   },
   methods: {
@@ -34,16 +50,24 @@ export default {
       'updateData',
     ] ),
     handleNodeClick( obj ) {
-      console.log( obj )
-      const {article_id, idList, path} = obj
+      // console.log( obj )
+      const {article_id, idList, path, children_count} = obj
+      this.updateData( {
+        selectItemIdList: idList,
+        breadNav: path,
+        childrenCount: children_count
+      } )
       // 上传操作文章ID，并请求文章
       if( article_id ) {
         this.updateData( {
           articleId: article_id,
-          selectItemIdList: idList,
-          breadNav: path
         } )
         this.$store.dispatch( 'getArticle' )
+      } else {
+        this.updateData( {
+          articleId: '',
+          articleDetails: {},
+        } )
       }
     },
   }

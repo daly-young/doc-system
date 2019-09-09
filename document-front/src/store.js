@@ -23,6 +23,8 @@ export default new Vuex.Store( {
     activeIndex: '0', // 顶部导航初始话激活序列号
     articleId: -1, // 当前操作文章ID
     articleDetails: {},
+    curCateKey: 0, // 左边菜单高亮选项
+    childrenCount: 0, // 当前选中菜单子集数量
     // activeIndex_second: '0',
     selectItemIdList: [], // 选中条目的id，创建模板默认路径使用
     fromCreate: false, // 是否为创建面板
@@ -80,7 +82,7 @@ export default new Vuex.Store( {
         } )
       }
     },
-    updateSideCategory( state, { firstLevelId } ) {
+    updateSideCategory( state, { firstLevelId, breadNav } ) {
       // 清空侧边栏数据
       state.sideCategory = undefined
       // 清空面包屑数据
@@ -94,6 +96,9 @@ export default new Vuex.Store( {
       state.firstLevelId = firstLevelId
       const list = state.category.find( ( { id } ) => id === firstLevelId )
       state.sideCategory = list ? list : undefined
+
+      // 更新面包屑
+      state.breadNav = breadNav
     },
     updateSideActive( state, { sideCategoryActiveIndex } ) {
       if ( state.sideCategoryActiveIndex != '' ) return
@@ -147,8 +152,23 @@ export default new Vuex.Store( {
             category: result,
             sideCategory: result[0],
             articleId: result[0].article_id,
+            breadNav: [result[0].label]
           } )
           dispatch( 'getArticle' )
+        } else {
+          this.$message.error( msg );
+        }
+      } )
+    },
+    refreshCate( { commit } ) {
+      // 初始化一级列表数据
+      getCateList().then( ( { success, result, msg } ) => {
+        if ( success ) {
+          // 存储列表
+          commit( 'updateData', {
+            category: result,
+            sideCategory: result[0],
+          } )
         } else {
           this.$message.error( msg );
         }
