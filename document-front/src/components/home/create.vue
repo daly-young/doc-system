@@ -39,20 +39,21 @@ export default {
   data() {
     return {
       articleTitle:'', // 新建文章名称
-      value: [4, 8], // 级联选择器选择路径
       props: {
         checkStrictly: true
       },
       options: [],
       newFolder: '',
       pathArr: [], // 文章路径信息
-      defaultIds: []
+      defaultIds: [] // 当前选中ID序列
     }
   },
   computed:{
     ...mapState( {
       // sideCategory: state => state.sideCategory,
-      selectItemIdList: state => state.selectItemIdList,
+      // selectItemIdList: state => state.selectItemIdList,
+      menu: state => state.menu,
+      tree: state => state.tree,
     } ),
   },
   created() {
@@ -60,12 +61,16 @@ export default {
   },
   mounted(){
     this.$nextTick( ()=>{
-      this.defaultIds = this.selectItemIdList
+      this.defaultIds = this.tree.curTreeItem.idList || this.menu.curMenuItem.idList
     } )
   },
   methods:{
     ...mapMutations( [
       'updateData',
+      'updateSideCategory',
+      'updateMenu',
+      'updateTree',
+      'updateArticle'
     ] ),
     init() {
       // 获取所有文件夹
@@ -103,14 +108,33 @@ export default {
           this.pathArr = [...this.pathArr, ...this.newFolder.split( '/' )]
           this.pathArr.push( this.articleTitle )
 
+          // 更新一级目录
+          // this.updateSideCategory( {
+          //   firstLevelId: this.defaultIds[0].toString()
+          // } )
+
           // 更新数据
           this.updateData( {
             createShow: false,
-            switchEditor: true,
+            // switchEditor: true,
+            // articleId: result.article_id,
+            // curTreeKey: result.id,
+            // breadNav: this.pathArr,
+            // articleDetails: {},
+            // activeIndex: this.defaultIds[0].toString()
+          } )
+          this.updateArticle( {
+            isEdit: true,
             articleId: result.article_id,
-            curCateKey: result.id,
-            breadNav: this.pathArr,
-            articleDetails: {}
+            details: {},
+            createShow: false,
+          } )
+          this.updateTree( {
+            activeTreeId: result.id
+          } )
+          // 更新一级目录
+          this.updateMenu( {
+            menuId: this.defaultIds[0].toString()
           } )
           this.$store.dispatch( 'refreshCate' )
         } else {
@@ -119,7 +143,7 @@ export default {
       } )
     },
     closeFn() {
-      this.updateData( {
+      this.updateArticle( {
         createShow: false,
       } )
     },

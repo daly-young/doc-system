@@ -11,11 +11,35 @@
 import { mapState } from 'vuex'
 
 export default {
+  data() {
+    return {
+      breadNav: []
+    }
+  },
   computed:{
     ...mapState( {
-        breadNav: state => state.breadNav
+        menu: state => state.menu,
+        tree: state => state.tree,
     } )
   },
+  watch: {
+    menu: {
+      handler( newVal ) {
+        if( newVal ) {
+          this.breadNav = this.menu.curMenuItem.path || []
+        }
+      },
+      deep: true
+    },
+    tree: {
+      handler( newVal ) {
+        if( newVal ) {
+          this.breadNav = this.tree.curTreeItem.path || []
+        }
+      },
+      deep: true
+    }
+  }
 }
 </script>
 

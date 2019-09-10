@@ -1,47 +1,100 @@
 <template>
   <el-aside width="200px">
-    <template v-if="sideCategory&&sideCategory.children.length">
-      <tree-menus :data="sideCategory.children" :curCateKey="highlightKey"></tree-menus>
-    </template>
+    <!-- <template v-if="treeList.length">
+      <tree-menus :data="treeList" :curTreeKey="highlightKey"></tree-menus>
+    </template> -->
+    <el-tree 
+      v-if="treeList.length"
+      :data="treeList" 
+      node-key="id"
+      @node-click="handleNodeClick"
+      highlight-current
+      default-expand-all
+      :expand-on-click-node="false"
+      ref="tree"
+    ></el-tree>
     <p v-else>暂无层级</p>
   </el-aside>
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex'
-import treeMenus from './aside-menu'
+import { mapMutations, mapState } from 'vuex'
+// import treeMenus from './aside-menu'
 export default {
   data() {
     return {
-      highlightKey: ''
+      highlightKey: '',
+      treeList: []
     }
   },
   components: {
-    treeMenus
+    // treeMenus
   },
   computed:{
     ...mapState( {
-      sideCategory: state => state.sideCategory,
-      sideCategoryActiveIndex: state => state.sideCategoryActiveIndex,
-      curCateKey: state => state.curCateKey
+      tree: state => state.tree,
+      menu: state => state.menu,
     } )
   },
   watch:{
-    sideCategory( newVal ) {
-      console.log( newVal, '====newCate' )
-      if( newVal ) {
-        this.highlightKey = this.curCateKey
-        console.log( this.highlightKey, '=====' )
-      }
+    menu: {
+      handler( newVal ) {
+        if( newVal ) {
+          const {menuId, menuList} = newVal
+          let item = menuList.filter( item=>item.id === menuId )
+          this.treeList = item.length ? item[0].children : []
+          // this.updateTree( {
+          //   curIdPath: this.treeList[0].idList,
+          // } )
+        }
+      },
+      deep: true
+    },
+    tree: {
+      handler( newVal ) {
+        if( newVal ) {
+          setTimeout( ()=>{
+            this.$refs.tree.setCurrentKey( newVal.activeTreeId.toString() )
+          }, 0 )
+          // this.highlightKey = newVal.activeTreeId.toString()
+        }
+      },
+      deep: true
     }
+  },
+  mounted(){
+    // 初始化提交，默认序列
+    // this.updateTree( {
+    //   curIdPath: this.treeList[0].idList,
+    // } )
   },
   methods: {
     ...mapMutations( [
-      'updateData'
+      'updateTree',
+      'updateArticle',
     ] ),
-    // 提交所选条目index
-    selectFn( index ) {
-      this.updateData( { selectIndex: index } )
+    handleNodeClick( obj ) {
+      console.log( obj, '=====curTreeitem' )
+      const {article_id, idList} = obj
+      this.updateTree( {
+        curIdPath: idList,
+        curTreeItem: obj
+      } )
+      // 上传操作文章ID，并请求文章
+      // if( article_id ) {
+      //   this.updateArticle( {
+      //     articleId: article_id,
+      //   } )
+      //   // this.$store.dispatch( 'getArticle' )
+      // } else {
+      //   this.updateArticle( {
+      //     articleId: '',
+      //     details: {},
+      //   } )
+      // }
+      this.updateArticle( {
+        articleId: article_id || '',
+      } )
     },
   }
 }

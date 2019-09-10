@@ -5,17 +5,16 @@
       <el-col :span="20" class="fe-headerRight">
         <!-- 一级目录 -->
         <el-menu 
-          :default-active="activeIndex" 
+          :default-active="menu.menuId.toString()" 
           class="el-menu-demo" 
           mode="horizontal" 
           text-color="#79BBFF"
           active-text-color="#409EFF">
           <template
-            v-for="(item,index) in category" 
-            :index="index.toString()">
+            v-for="(item) in menu.menuList" >
             <el-menu-item 
               :key="item.id" 
-              :index="index.toString()"
+              :index="item.id.toString()"
               @click="changeList(item)">{{item.label}}</el-menu-item>
           </template>
           <!-- 搜索 -->
@@ -28,12 +27,9 @@
             <el-menu-item class="fe-username" :index="userIndex">
               <a href="/user">
                 <i class="el-icon-user-solid"></i>
-                <span>{{userName}}</span>
+                <span>{{menu.userName}}</span>
               </a>
             </el-menu-item>
-            <!-- <el-menu-item index="8">
-              <i class="el-icon-setting"></i>
-            </el-menu-item> -->
             <el-button type="primary" @click="createFn">创建</el-button>
           </template>
           <template v-else>
@@ -46,30 +42,29 @@
 </template>
 
 <script>
-import { searchAll, userInfo} from '@/assets/js/api'
+import { searchAll} from '@/assets/js/api'
 import { mapMutations, mapState, mapActions } from 'vuex'
 export default {
   name: 'feHeader',
   data() {
     return {
-      projectList:[],
       keywords: '',
-      userName:'',
-      isLogin: false,
-      len: 0
     }
   },
   computed: {
     ...mapState( {
-      category: state => state.category,
-      activeIndex: state => state.activeIndex,
-      switchEditor: state => state.switchEditor,
+      // category: state => state.category,
+      // activeIndex: state => state.activeIndex,
+      // switchEditor: state => state.switchEditor,
+      article: state => state.article,
+      menu: state => state.menu,
+      isLogin: state =>state.isLogin
     } ),
     searchIndex() {
-      return ( this.category.length + 1 ).toString()
+      return ( this.menu.menuList.slice( -1 ).id + 1 ).toString()
     },
     userIndex() {
-      return ( this.category.length + 2 ).toString()
+      return ( this.menu.menuList.slice( -1 ).id  + 2 ).toString()
     }
   },
   created() {
@@ -77,44 +72,28 @@ export default {
   },
   methods:{
     ...mapMutations( [
-      'updateData',
-      'updateSideCategory'
+      'updateMenu',
+      'updateArticle'
     ] ),
     ...mapActions( [
-      'getCateListFn',
+      // 'getCateListFn',
+      // 'getUser'
     ] ),
     init() {
       // 获取用户信息
-      this.getUser()
+      this.$store.dispatch( 'getUser' )
+
       // 获取所有分类信息
       this.$store.dispatch( 'getCateListFn' )
-    },
-    getUser() {
-      userInfo().then( ( {success, result, code, msg} )=>{
-        if( success ) {
-            this.isLogin = true
-            this.userName = result.user_name
-        }else {
-          if( code === 1999 ) {
-            this.isLogin = false
-          }else {
-            this.$message.error( msg || '错了哦，这是一条错误消息' );
-          }
-        }
-        // 提交登录状态
-        this.updateData( {
-          isLogin: this.isLogin
-        } )
-      } )
     },
     backHome() {
       this.$router.push( '/' )
     },
     // 切换选项
-    changeList( {id, label} ) {
-      this.updateSideCategory( {
-        firstLevelId: id,
-        breadNav: [label] // 面包屑
+    changeList( item ) {
+      this.updateMenu( {
+        menuId: item.id,
+        curMenuItem: item
       } )
     },
     // 搜索功能
@@ -126,7 +105,7 @@ export default {
     // 创建新文章
     createFn() {
       // 编辑状态不可创建
-      if( this.switchEditor ) {
+      if( this.article.isEdit ) {
         this.$message( {
           message: '请先保存编辑模板',
           type: 'warning'
@@ -134,7 +113,7 @@ export default {
         return
       }
       // 插入新数据，切换书写模板，清空数据
-      this.updateData( {
+      this.updateArticle( {
         createShow: true
       } )
     },

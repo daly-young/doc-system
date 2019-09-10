@@ -105,7 +105,7 @@ class ArticleService extends Service {
       id: params.id,
     });
 
-    const result_cate = this.app.mysql.delete('fe_level', {
+    const result_cate = await this.app.mysql.delete('fe_level', {
       article_id: params.id,
     });
 

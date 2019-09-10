@@ -2,14 +2,12 @@
 <el-container class="layout">
   <fe-header></fe-header>
   <el-container>
-    <fe-aside v-if="showAsideMenu"></fe-aside>
+    <fe-aside></fe-aside>
     <el-container>
       <fe-main></fe-main>
-      <!-- <fe-main1 v-else></fe-main1> -->
-      <!-- <fe-sidebtns v-if="!switchEditor"></fe-sidebtns> -->
     </el-container>
   </el-container>
-  <fe-create v-if="createShow"></fe-create>
+  <fe-create v-if="article.createShow"></fe-create>
 </el-container>
 </template>
 
@@ -17,10 +15,8 @@
 import feHeader from '@/components/home/header.vue'
 import feAside from '@/components/home/aside'
 import feMain from '@/components/home/main'
-// import feMain1 from '@/components/home/main-preview.vue'
-// import feSidebtns from '@/components/home/side-btns.vue'
 import feCreate from '@/components/home/create.vue'
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 
 export default {
   name: 'home',
@@ -28,23 +24,29 @@ export default {
     feHeader,
     feAside,
     feMain,
-    // feMain1,
-    // feSidebtns,
     feCreate
   },
   data() {
     return {}
   },
+  created() {
+    this.$store.dispatch( 'getCateListFn' )
+  },
   computed:{
-    ...mapState({
-      switchEditor: state => state.switchEditor,
-      createShow: state => state.createShow,
-      sideCategory: state => state.sideCategory
-    }),
-    showAsideMenu() {
-      let { sideCategory } = this
-      return sideCategory && sideCategory.children && sideCategory.children.length
-    }
+    ...mapState( {
+      // switchEditor: state => state.switchEditor,
+      article: state => state.article,
+      // sideCategory: state => state.sideCategory
+    } ),
+    // showAsideMenu() {
+    //   let { sideCategory } = this
+    //   return sideCategory && sideCategory.children && sideCategory.children.length
+    // }
+  },
+  methods:{
+    ...mapActions( [
+      'getCateListFn',
+    ] ),
   }
 }
 </script>

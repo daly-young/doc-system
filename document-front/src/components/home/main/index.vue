@@ -1,10 +1,12 @@
 <template>
   <el-main>
     <bread-nav></bread-nav>
-    <normal v-if="!switchEditor"></normal>
+    <template v-if="isNormal">
+      <normal></normal>
+      <side-btns></side-btns>
+    </template>
     <edit v-else></edit>
     <!-- 只有常规展示以及可获取的文章可以展示 -->
-    <side-btns v-if="!switchEditor"></side-btns>
   </el-main>
 </template>
 <script>
@@ -23,9 +25,11 @@ export default {
   },
   computed: {
     ...mapState( {
-      switchEditor: state => state.switchEditor,
-      articleDetails: state => state.articleDetails
-    } )
+      article: state => state.article,
+    } ),
+    isNormal() {
+      return !this.article.isEdit
+    }
   }
 }
 </script>

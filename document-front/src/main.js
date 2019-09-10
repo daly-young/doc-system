@@ -9,10 +9,10 @@ import './plugins/axios.js'
 Vue.config.productionTip = false
 // Vue.prototype.$axios = axios;
 
-Vue.component('tree-item', { template: '#item-template' })
+Vue.component( 'tree-item', { template: '#item-template' } )
 
-new Vue({
+new Vue( {
   router,
   store,
-  render: h => h(App)
-}).$mount('#app')
+  render: h => h( App )
+} ).$mount( '#app' )

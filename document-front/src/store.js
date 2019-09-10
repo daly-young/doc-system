@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { getContent, getCateList, userCreateHistory, userCollectHistory, userOperationHistory } from '@/assets/js/api'
+import { getContent, getCateList, userCreateHistory, userCollectHistory, userOperationHistory, userInfo } from '@/assets/js/api'
 
 Vue.use( Vuex )
 
@@ -9,12 +9,6 @@ export default new Vuex.Store( {
     isLogin: false, // 是否登录
     switchEditor: false, // 是否切换面板
     createShow: false, // 是否展示创建面板
-    // curId: 2, // 当前编辑文章id
-    // curItem: {},
-    // firstTitle: '',
-    // firstList: [],
-    // secondTitle: '',
-    // secondList: [],
     firstLevelId: -1, // 一级目录ID
     category: [], // 所有分类数据
     sideCategory: {}, // 当前侧边栏数据
@@ -23,11 +17,27 @@ export default new Vuex.Store( {
     activeIndex: '0', // 顶部导航初始话激活序列号
     articleId: -1, // 当前操作文章ID
     articleDetails: {},
-    curCateKey: 0, // 左边菜单高亮选项
+    curTreeKey: 0, // 左边菜单高亮选项
     childrenCount: 0, // 当前选中菜单子集数量
-    // activeIndex_second: '0',
     selectItemIdList: [], // 选中条目的id，创建模板默认路径使用
     fromCreate: false, // 是否为创建面板
+    menu: {
+      menuId: '', // 根目录ID，String
+      menuList: [],
+      userName: '',
+      curMenuItem: {}
+    },
+    tree: {
+      activeTreeId: '', // 选中treeItemID， String
+      curTreeItem: {},
+      curIdPath: [],
+    },
+    article: {
+      articleId: '', // 当前展示文章ID
+      details: {}, // 文章内容
+      isEdit: false, // 编辑状态
+      createShow: false // 创建面板
+    },
     user: {
       activeIndex: '0',
       pagenationIndex: 0,
@@ -52,9 +62,24 @@ export default new Vuex.Store( {
       }
     },
     // 更新当前文章信息
+    // updateArticle( state, obj ) {
+    //   for ( let key in obj ) {
+    //     state.articleDetails[key] = obj[key]
+    //   }
+    // },
     updateArticle( state, obj ) {
       for ( let key in obj ) {
-        state.articleDetails[key] = obj[key]
+        state.article[key] = obj[key]
+      }
+    },
+    updateMenu( state, obj ) {
+      for ( let key in obj ) {
+        state.menu[key] = obj[key]
+      }
+    },
+    updateTree( state, obj ) {
+      for ( let key in obj ) {
+        state.tree[key] = obj[key]
       }
     },
     updateUser( state, obj ) {
@@ -82,62 +107,69 @@ export default new Vuex.Store( {
         } )
       }
     },
-    updateSideCategory( state, { firstLevelId, breadNav } ) {
-      // 清空侧边栏数据
-      state.sideCategory = undefined
-      // 清空面包屑数据
-      state.breadNav = []
-      // 重置侧边栏激活序列号
-      state.sideCategoryActiveIndex = ''
-      state.selectIndex = ''
-      state.articleDetails = {}
+    // updateSideCategory( state, { firstLevelId, breadNav } ) {
+    //   // 清空侧边栏数据
+    //   state.sideCategory = undefined
+    //   // 清空面包屑数据
+    //   // state.breadNav = []
+    //   // 重置侧边栏激活序列号
+    //   state.sideCategoryActiveIndex = ''
+    //   state.selectIndex = ''
+    //   state.articleDetails = {}
 
-      // 查找赋值
-      state.firstLevelId = firstLevelId
-      const list = state.category.find( ( { id } ) => id === firstLevelId )
-      state.sideCategory = list ? list : undefined
+    //   // 查找赋值
+    //   state.firstLevelId = firstLevelId
+    //   const list = state.category.find( ( { id } ) => id === firstLevelId )
+    //   state.sideCategory = list ? list : undefined
+    //   console.log( state.sideCategory, '===side' )
 
-      // 更新面包屑
-      state.breadNav = breadNav
-    },
-    updateSideActive( state, { sideCategoryActiveIndex } ) {
-      if ( state.sideCategoryActiveIndex != '' ) return
-      state.sideCategoryActiveIndex = sideCategoryActiveIndex
-    },
+    //   // 更新面包屑
+    //   state.breadNav = breadNav || []
+    // },
+    // updateSideActive( state, { sideCategoryActiveIndex } ) {
+    //   if ( state.sideCategoryActiveIndex != '' ) return
+    //   state.sideCategoryActiveIndex = sideCategoryActiveIndex
+    // },
   },
   actions: {
     getArticle( { commit, state } ) {
-      if ( !state.articleId ) {
-        commit( 'updateData', {
-          articleDetails: {},
+      const { articleId } = state.article
+      if ( !articleId ) {
+        commit( 'updateArticle', {
+          details: {},
         } )
         return
       }
       // 如果有缓存，优先使用缓存
-      let data = sessionStorage.getItem( 'article_' + state.articleId )
+      let data = sessionStorage.getItem( 'article_' + articleId )
       // console.log('artcile=====', data)
       if ( data ) {
-        commit( 'updateData', {
+        commit( 'updateArticle', {
           // curItem: JSON.parse(data),
-          articleDetails: JSON.parse( data ),
-          switchEditor: state.fromCreate,
+          details: JSON.parse( data ),
+          // switchEditor: state.fromCreate,
         } )
         return
       }
 
       // 请求文章信息
-      getContent( { id: state.articleId } ).then( ( { success, result, msg } ) => {
+      getContent( { id: articleId } ).then( ( { success, result, msg } ) => {
         if ( success ) {
-          let data = {
-            // curItem: result,
-            articleDetails: result,
-            switchEditor: state.fromCreate,
-          }
-          commit( 'updateData', data )
+          // let data = {
+          // curItem: result,
+          // articleDetails: result,
+          // switchEditor: state.fromCreate,
+          // }
+          // commit( 'updateData', data )
+          commit( 'updateArticle', {
+            details: result,
+          } )
           // 存储数据，节省请求
-          sessionStorage.setItem( 'article_' + state.articleId, JSON.stringify( result ) )
+          sessionStorage.setItem( 'article_' + articleId, JSON.stringify( result ) )
         } else {
-          commit( 'updateData', { articleDetails: {} } )
+          commit( 'updateArticle', {
+            details: {},
+          } )
           console.log( '[error]获取文章接口：' + msg );
         }
 
@@ -148,15 +180,26 @@ export default new Vuex.Store( {
       getCateList().then( ( { success, result, msg } ) => {
         if ( success ) {
           // 存储列表
-          commit( 'updateData', {
-            category: result,
-            sideCategory: result[0],
+          // commit( 'updateData', {
+          //   category: result,
+          //   sideCategory: result[0],
+          //   articleId: result[0].article_id,
+          //   breadNav: [result[0].label],
+          //   activeIndex: result[0].id.toString()
+          // } )
+          commit( 'updateMenu', {
+            menuList: result,
+            curMenuItem: result[0],
+            menuId: result[0].id
+          } )
+          commit( 'updateArticle', {
             articleId: result[0].article_id,
             breadNav: [result[0].label]
           } )
           dispatch( 'getArticle' )
         } else {
-          this.$message.error( msg );
+          console.error( msg )
+          // this.$message.error( msg );
         }
       } )
     },
@@ -170,49 +213,74 @@ export default new Vuex.Store( {
             sideCategory: result[0],
           } )
         } else {
-          this.$message.error( msg );
+          console.error( msg )
+          // this.$message.error( msg );
         }
       } )
     },
     getUserHistory( { commit, state }, params ) {
-      let index = state.user.activeIndex
-      let ajaxFunction = userCreateHistory
-      index === 1 && ( ajaxFunction = userCollectHistory )
-      index === 2 && ( ajaxFunction = userOperationHistory )
-      ajaxFunction( params ).then( ( { success, result, msg } ) => {
+      //   let index = state.user.activeIndex
+      //   let ajaxFunction = userCreateHistory
+      //   index === 1 && ( ajaxFunction = userCollectHistory )
+      //   index === 2 && ( ajaxFunction = userOperationHistory )
+      //   ajaxFunction( params ).then( ( { success, result, msg } ) => {
+      //     if ( success ) {
+      //       if ( result.list && result.list.length === 0 ) {
+      //         commit( 'updateUser', {
+      //           tableList: [],
+      //           paginationTotal: result.total,
+      //         } )
+      //         return
+      //       }
+      //       let list = result.list.map( ( { article_id, modify_time, operation } ) => {
+      //         let operationName = ''
+      //         if ( operation === 'collect' ) {
+      //           operationName = '收藏'
+      //         } else if ( operation === 'cancel' ) {
+      //           operationName = '取消收藏'
+      //         } else if ( operation === 'edit' ) {
+      //           operationName = '编辑'
+      //         } else if ( operation === 'create' ) {
+      //           operationName = '创建'
+      //         } else if ( operation === 'delete' ) {
+      //           operationName = '删除'
+      //         }
+      //         return {
+      //           article: article_id + '还没取值文章名，别忘了',
+      //           date: modify_time,
+      //           operation: operationName,
+      //         }
+      //       } )
+      //       commit( 'updateUser', {
+      //         tableList: list,
+      //         paginationTotal: result.total,
+      //       } )
+      //     } else {
+      //       console.log( msg )
+      //     }
+      //   } )
+    },
+    // 获取用户信息
+    getUser( { commit } ) {
+      userInfo().then( ( { success, result, code, msg } ) => {
         if ( success ) {
-          if ( result.list && result.list.length === 0 ) {
-            commit( 'updateUser', {
-              tableList: [],
-              paginationTotal: result.total,
-            } )
-            return
-          }
-          let list = result.list.map( ( { article_id, modify_time, operation } ) => {
-            let operationName = ''
-            if ( operation === 'collect' ) {
-              operationName = '收藏'
-            } else if ( operation === 'cancel' ) {
-              operationName = '取消收藏'
-            } else if ( operation === 'edit' ) {
-              operationName = '编辑'
-            } else if ( operation === 'create' ) {
-              operationName = '创建'
-            } else if ( operation === 'delete' ) {
-              operationName = '删除'
-            }
-            return {
-              article: article_id + '还没取值文章名，别忘了',
-              date: modify_time,
-              operation: operationName,
-            }
+          // 登录
+          commit( 'updateData', {
+            isLogin: true,
           } )
-          commit( 'updateUser', {
-            tableList: list,
-            paginationTotal: result.total,
+          // 用户名称
+          commit( 'updateMenu', {
+            userName: result.user_name,
           } )
         } else {
-          console.log( msg )
+          if ( code === 1999 ) {
+            commit( 'updateData', {
+              isLogin: false,
+            } )
+          } else {
+            console.error( msg )
+            // this.$message.error( msg || '错了哦，这是一条错误消息' );
+          }
         }
       } )
     },

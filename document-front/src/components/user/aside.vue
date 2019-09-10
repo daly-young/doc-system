@@ -18,10 +18,10 @@ export default {
       list:[{
         name: '创建记录',
         id: 0
-      },{
+      }, {
         name: '收藏记录',
         id: 1
-      },{
+      }, {
         name: '操作记录',
         id: 2
       }]
@@ -31,22 +31,22 @@ export default {
     this.selectFn()
   },
   methods:{
-    ...mapMutations([
+    ...mapMutations( [
       'updateUser',
       'updateUserAside',
-    ]),
-    ...mapActions([
+    ] ),
+    ...mapActions( [
       'getUserHistory'
-    ]),
-    selectFn(i) {
-      this.updateUser({
+    ] ),
+    selectFn( i ) {
+      this.updateUser( {
         activeIndex: i
-      })
+      } )
       this.updateUserAside()
-      this.$store.dispatch('getUserHistory',{
+      this.$store.dispatch( 'getUserHistory', {
         start: 0,
         size:12,
-      })
+      } )
     }
   }
 }

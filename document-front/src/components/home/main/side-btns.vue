@@ -8,30 +8,32 @@
 <script>
 import feHistory from './history.vue'
 import { articleDelete } from '@/assets/js/api'
-import { mapMutations, mapState, mapActions } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 export default {
   components:{
     feHistory
   },
   computed:{
     ...mapState( {
-      articleId: state => state.articleId,
-      articleDetails: state => state.articleDetails,
+      article: state => state.article,
       isLogin: state => state.isLogin,
-      childrenCount: state => state.childrenCount
+      tree: state => state.tree,
+      menu: state => state.menu
     } ),
+    articleId() {
+      return this.article.articleId
+    },
     showDelete() {
-      // console.log( this.articleDetails.hasRight, this.childrenCount )
       // 只有是本人创建，并且没有子集的才可以删除
-      return this.articleDetails.hasRight && !this.childrenCount
+      console.log( this.article.details.hasRight, this.tree.curTreeItem.children_count )
+      return this.article.details.hasRight && !this.tree.curTreeItem.children_count
     }
   },
   methods:{
     ...mapMutations( [
-      'updateData',
-    ] ),
-    ...mapActions( [
-      'getSecondListFn',
+      // 'updateData',
+      'updateTree',
+      'updateArticle',
     ] ),
     showDialog() {
       this.$confirm( '确定要删除该文章?', '提示', {
@@ -54,8 +56,15 @@ export default {
         if( success ) {
           this.$message( '删除成功' );
           // todo:然后展示切换到上一篇
-          
-          window.location.reload()
+          this.updateTree( {
+            activeTreeId: '', // 选中treeItemID， String
+            curTreeItem: {},
+            curIdPath: [],
+          } )
+          this.updateArticle( {
+            articleId: this.menu.curMenuItem.article_id
+          } )
+          // window.location.reload()
         } else {
           this.$message.error( msg || '删除失败' );
         }
@@ -65,8 +74,8 @@ export default {
       if( !this.isLogin ) {
         this.$router.push( '/login' )
       } else {
-        this.updateData( {
-          switchEditor: true
+        this.updateArticle( {
+          isEdit: true
         } )
       }
     }
