@@ -34,14 +34,19 @@ export default {
     ...mapState( {
       tree: state => state.tree,
       menu: state => state.menu,
-    } )
+    } ),
+    activeTreeId() {
+      return this.tree.activeTreeId
+    }
   },
   watch:{
     menu: {
       handler( newVal ) {
+        console.log( newVal, '====menu watch' )
         if( newVal ) {
           const {menuId, menuList} = newVal
-          let item = menuList.filter( item=>item.id === menuId )
+          let item = menuList.filter( item=>item.id === +menuId )
+          console.log( item, '====menu item ' )
           this.treeList = item.length ? item[0].children : []
           // this.updateTree( {
           //   curIdPath: this.treeList[0].idList,
@@ -50,16 +55,21 @@ export default {
       },
       deep: true
     },
-    tree: {
+    activeTreeId: {
       handler( newVal ) {
+        // console.log( this.$refs.tree, '====$refs.tree' )
         if( newVal ) {
-          setTimeout( ()=>{
-            this.$refs.tree.setCurrentKey( newVal.activeTreeId.toString() )
-          }, 0 )
+          this.$nextTick( ()=>{
+            this.$refs.tree.setCurrentKey( newVal.toString() )
+            console.log( this.$refs.tree.getNode( newVal.toString() ), '=====getNode' )
+            this.updateTree( {
+              curTreeItem: this.$refs.tree.getNode( newVal.toString() ).data
+            } )
+          } )
           // this.highlightKey = newVal.activeTreeId.toString()
         }
       },
-      deep: true
+      immediate: true
     }
   },
   mounted(){
@@ -80,18 +90,7 @@ export default {
         curIdPath: idList,
         curTreeItem: obj
       } )
-      // 上传操作文章ID，并请求文章
-      // if( article_id ) {
-      //   this.updateArticle( {
-      //     articleId: article_id,
-      //   } )
-      //   // this.$store.dispatch( 'getArticle' )
-      // } else {
-      //   this.updateArticle( {
-      //     articleId: '',
-      //     details: {},
-      //   } )
-      // }
+      // 上传操作文章ID
       this.updateArticle( {
         articleId: article_id || '',
       } )

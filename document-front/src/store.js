@@ -203,15 +203,19 @@ export default new Vuex.Store( {
         }
       } )
     },
-    refreshCate( { commit } ) {
+    refreshCate( { commit }, params ) {
       // 初始化一级列表数据
       getCateList().then( ( { success, result, msg } ) => {
         if ( success ) {
           // 存储列表
-          commit( 'updateData', {
-            category: result,
-            sideCategory: result[0],
+          commit( 'updateMenu', {
+            menuList: result,
+            // sideCategory: result[0],
           } )
+
+          // 更新高亮ID
+          const { activeTreeId } = params
+          commit( 'updateTree', { activeTreeId } )
         } else {
           console.error( msg )
           // this.$message.error( msg );
@@ -219,46 +223,46 @@ export default new Vuex.Store( {
       } )
     },
     getUserHistory( { commit, state }, params ) {
-      //   let index = state.user.activeIndex
-      //   let ajaxFunction = userCreateHistory
-      //   index === 1 && ( ajaxFunction = userCollectHistory )
-      //   index === 2 && ( ajaxFunction = userOperationHistory )
-      //   ajaxFunction( params ).then( ( { success, result, msg } ) => {
-      //     if ( success ) {
-      //       if ( result.list && result.list.length === 0 ) {
-      //         commit( 'updateUser', {
-      //           tableList: [],
-      //           paginationTotal: result.total,
-      //         } )
-      //         return
-      //       }
-      //       let list = result.list.map( ( { article_id, modify_time, operation } ) => {
-      //         let operationName = ''
-      //         if ( operation === 'collect' ) {
-      //           operationName = '收藏'
-      //         } else if ( operation === 'cancel' ) {
-      //           operationName = '取消收藏'
-      //         } else if ( operation === 'edit' ) {
-      //           operationName = '编辑'
-      //         } else if ( operation === 'create' ) {
-      //           operationName = '创建'
-      //         } else if ( operation === 'delete' ) {
-      //           operationName = '删除'
-      //         }
-      //         return {
-      //           article: article_id + '还没取值文章名，别忘了',
-      //           date: modify_time,
-      //           operation: operationName,
-      //         }
-      //       } )
-      //       commit( 'updateUser', {
-      //         tableList: list,
-      //         paginationTotal: result.total,
-      //       } )
-      //     } else {
-      //       console.log( msg )
-      //     }
-      //   } )
+      let index = state.user.activeIndex
+      let ajaxFunction = userCreateHistory
+      index === 1 && ( ajaxFunction = userCollectHistory )
+      index === 2 && ( ajaxFunction = userOperationHistory )
+      ajaxFunction( params ).then( ( { success, result, msg } ) => {
+        if ( success ) {
+          if ( result.list && result.list.length === 0 ) {
+            commit( 'updateUser', {
+              tableList: [],
+              paginationTotal: result.total,
+            } )
+            return
+          }
+          let list = result.list.map( ( { article_id, modify_time, operation } ) => {
+            let operationName = ''
+            if ( operation === 'collect' ) {
+              operationName = '收藏'
+            } else if ( operation === 'cancel' ) {
+              operationName = '取消收藏'
+            } else if ( operation === 'edit' ) {
+              operationName = '编辑'
+            } else if ( operation === 'create' ) {
+              operationName = '创建'
+            } else if ( operation === 'delete' ) {
+              operationName = '删除'
+            }
+            return {
+              article: article_id + '还没取值文章名，别忘了',
+              date: modify_time,
+              operation: operationName,
+            }
+          } )
+          commit( 'updateUser', {
+            tableList: list,
+            paginationTotal: result.total,
+          } )
+        } else {
+          console.log( msg )
+        }
+      } )
     },
     // 获取用户信息
     getUser( { commit } ) {

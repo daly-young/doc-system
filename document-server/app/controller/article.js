@@ -11,6 +11,7 @@ class ArticleController extends Controller {
         // first_cate: { type: 'string', require: false, default: '' },
         articleTitle: { type: 'string', require: true },
         parentId: { type: 'string', require: true },
+        // pathArr: { type: 'string', require: true },
       });
     } catch (err) {
       ctx.logger.warn(err.errors);

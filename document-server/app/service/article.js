@@ -6,29 +6,38 @@ class ArticleService extends Service {
   async create(params) {
     const data = new this.ctx.helper.Ajaxresult();
     const { articleTitle, parentId, folders } = params;
+    // 路径ID信息
+    // const parentIdArr = parentId.split(',').map(item => Number(item));
+    // 新增文件夹
+    const foldersArr = folders.split(',');
+    // 路径展示信息
+    // const newPathArr = pathArr.split(',');
 
     // -------------创建文件夹&&文章-------------------
-    let lastId = '';
+    const idList = [];
     if (folders) {
-      const folderArr = folders.split(',');
+      // const folderArr = folders.split(',');
       // console.log(folderArr);
-      for (let i = 0; i < folderArr.length; i++) {
+      for (let i = 0; i < foldersArr.length; i++) {
         // 创建目录
         const resultLevel = await this.app.mysql.insert('fe_level', {
-          parent_id: lastId || parentId,
+          parent_id: idList.slice(-1).toString() || parentId,
           creator: this.ctx.cookies.get('userId', { encrypt: true }),
-          title: folderArr[i],
-          value: transliterate(folderArr[i]),
+          title: foldersArr[i],
+          value: transliterate(foldersArr[i]),
           modify_time: this.app.mysql.literals.now,
         });
-        lastId = resultLevel.insertId;
+        idList.push(resultLevel.insertId);
       }
-
     }
 
+    // 声明下面用的parentID
+    const newParentId = idList.slice(-1).toString() || parentId;
+    console.log(newParentId, '====newParentId');
+    console.log(idList, '=====idList');
     // 创建文章
     const result = await this.app.mysql.insert('fe_article', {
-      article_name: params.articleTitle,
+      article_name: articleTitle,
       user_id: this.ctx.cookies.get('userId', { encrypt: true }),
       create_time: this.app.mysql.literals.now,
       modify_time: this.app.mysql.literals.now,
@@ -41,15 +50,18 @@ class ArticleService extends Service {
       });
     }
 
+    console.log('chuangjianchenggong');
+
     // 创建目录，有lastId，说明有新文件夹，用新的文件夹
-    const { insertId } = result;
-    console.log(lastId, typeof lastId, '===lastId');
-    const pid = await lastId || parentId;
+    // const { insertId } = result;
+    // console.log(idList, typeof idList, '===lastId');
+    // const pid = idList.slice(-1) || parentId.slice(-1);
+    // console.log(pid);
     const resultLevel = await this.app.mysql.insert('fe_level', {
-      parent_id: pid,
+      parent_id: newParentId,
       creator: this.ctx.cookies.get('userId', { encrypt: true }),
       title: articleTitle,
-      article_id: insertId,
+      article_id: result.insertId,
       value: transliterate(articleTitle),
       modify_time: this.app.mysql.literals.now,
     });
@@ -60,6 +72,8 @@ class ArticleService extends Service {
         msg: '创建目录失败，请重试',
       });
     }
+
+    console.log('创建层级');
 
     // 创建历史记录
     const result_history = await this.app.mysql.insert('fe_history', {
@@ -75,10 +89,17 @@ class ArticleService extends Service {
         msg: '创建历史记录失败，请重试',
       });
     }
+    console.log('创建历史记录');
 
+    // console.log(...parentIdArr, '-------', ...idList, '-------', resultLevel.insertId);
     return data.successFn({
       article_id: result.insertId,
       id: resultLevel.insertId,
+      // child_count: 0,
+      // idList: [ ...parentIdArr, ...idList, resultLevel.insertId ],
+      // label: articleTitle,
+      // parentId: newParentId,
+      // path: [ ...newPathArr, ...foldersArr, articleTitle ],
     });
   }
 

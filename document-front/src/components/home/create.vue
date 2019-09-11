@@ -61,7 +61,11 @@ export default {
   },
   mounted(){
     this.$nextTick( ()=>{
+      console.log( this.tree.curTreeItem, '=====create treeItem' )
+      console.log( this.tree.curTreeItem.idList )
       this.defaultIds = this.tree.curTreeItem.idList || this.menu.curMenuItem.idList
+      // this.defaultIds = [4, 18, 113, 146]
+      this.pathArr = this.tree.curTreeItem.path || this.menu.curMenuItem.path
     } )
   },
   methods:{
@@ -95,13 +99,17 @@ export default {
       // 数组=》去空=》转字符串
       const folders = this.newFolder.split( '/' ).filter( Boolean ).join( ',' )
       console.log( this.defaultIds, '=======this.defaultIds' )
-      const parentId = this.defaultIds[this.defaultIds.length - 1]
+      const parentId = this.defaultIds.slice( -1 ).toString()
+      // const pathArr = this.pathArr.join( ',' )
       articleCreate( {
         parentId,
         folders,
+        // pathArr,
         articleTitle: this.articleTitle,
       } ).then( ( {success, result, msg} )=>{
         if( success ) {
+          const {id, article_id} = result
+
           // 关闭创建面板=》修改默认id序列=》提交生成文章的ID=》调出编辑面板
           // console.log( result )
           // 更新面包屑
@@ -125,18 +133,25 @@ export default {
           } )
           this.updateArticle( {
             isEdit: true,
-            articleId: result.article_id,
+            articleId: article_id,
             details: {},
             createShow: false,
           } )
-          this.updateTree( {
-            activeTreeId: result.id
-          } )
+          // this.updateTree( {
+          //   activeTreeId: result.id
+          // } )
           // 更新一级目录
           this.updateMenu( {
             menuId: this.defaultIds[0].toString()
           } )
-          this.$store.dispatch( 'refreshCate' )
+
+          // const {idList, path} = this.tree.curTreeItem
+          // this.updateTree( {
+          //   curTreeItem: result
+          // } )
+
+          // 更新tree之后再点亮当前选中
+          this.$store.dispatch( 'refreshCate', {activeTreeId: id} )
         } else {
             this.$message.error( msg || '创建失败' );
         }

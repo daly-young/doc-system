@@ -56,15 +56,15 @@ export default {
         if( success ) {
           this.$message( '删除成功' );
           // todo:然后展示切换到上一篇
-          this.updateTree( {
-            activeTreeId: '', // 选中treeItemID， String
-            curTreeItem: {},
-            curIdPath: [],
-          } )
-          this.updateArticle( {
-            articleId: this.menu.curMenuItem.article_id
-          } )
-          // window.location.reload()
+          // this.updateTree( {
+          //   activeTreeId: '', // 选中treeItemID， String
+          //   curTreeItem: {},
+          //   curIdPath: [],
+          // } )
+          // this.updateArticle( {
+          //   articleId: this.menu.curMenuItem.article_id
+          // } )
+          window.location.reload()
         } else {
           this.$message.error( msg || '删除失败' );
         }

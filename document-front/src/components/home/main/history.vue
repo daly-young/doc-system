@@ -36,8 +36,11 @@ export default {
   },
   computed:{
     ...mapState( {
-       articleId: state => state.articleId,
-    } )
+       article: state => state.article,
+    } ),
+    articleId() {
+      return this.article.articleId
+    }
   },
   watch:{
     articleId( newVal ) {
