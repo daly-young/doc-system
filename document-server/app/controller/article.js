@@ -12,7 +12,7 @@ class ArticleController extends Controller {
         articleTitle: { type: 'string', require: true },
         parentId: { type: 'string', require: true },
         // pathArr: { type: 'string', require: true },
-      });
+      }, param);
     } catch (err) {
       ctx.logger.warn(err.errors);
       const data = new this.ctx.helper.Ajaxresult();
@@ -31,7 +31,7 @@ class ArticleController extends Controller {
       ctx.validate({
         articleTitle: { type: 'string', require: true },
         parentId: { type: 'string', require: true },
-      });
+      }, param);
     } catch (err) {
       ctx.logger.warn(err.errors);
       const data = new this.ctx.helper.Ajaxresult();
@@ -51,7 +51,7 @@ class ArticleController extends Controller {
         id: { type: 'id', required: true },
         content: { type: 'string', required: false },
         md: { type: 'string', required: false },
-      });
+      }, param);
     } catch (err) {
       ctx.logger.warn(err.errors);
       const data = new this.ctx.helper.Ajaxresult();
@@ -89,7 +89,7 @@ class ArticleController extends Controller {
     try {
       ctx.validate({
         id: { type: 'id', required: true },
-      }, ctx.query);
+      }, param);
     } catch (err) {
       ctx.logger.warn(err.errors);
       const data = new this.ctx.helper.Ajaxresult();
@@ -105,6 +105,26 @@ class ArticleController extends Controller {
     const { ctx } = this;
     // const param = ctx.query;
     ctx.body = await ctx.service.article.listAll();
+  }
+
+  async search() {
+    const { ctx } = this;
+    const param = ctx.query;
+    try {
+      ctx.validate({
+        id: { type: 'id', required: true },
+        content: { type: 'string', required: false },
+        md: { type: 'string', required: false },
+      }, param);
+    } catch (err) {
+      ctx.logger.warn(err.errors);
+      const data = new this.ctx.helper.Ajaxresult();
+      ctx.body = data.fail({
+        code: 10001,
+      });
+      return;
+    }
+    ctx.body = await ctx.service.article.search(param);
   }
 }
 

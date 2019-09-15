@@ -21,4 +21,7 @@ module.exports = app => {
 
   // 获取所有文章列表
   router.get('/admin/article/listAll', controller.article.listAll);
+
+  // 搜索
+  router.get('/search', controller.article.search);
 };

@@ -2,6 +2,7 @@
 const Service = require('egg').Service;
 
 class UserService extends Service {
+
   async login(param) {
     const results = await this.app.mysql.get('fe_user', param);
     const data = new this.ctx.helper.Ajaxresult();
@@ -18,6 +19,7 @@ class UserService extends Service {
     });
     return data.successFn(results);
   }
+
   async reg(param) {
     param.reg_time = this.app.mysql.literals.now;
     param.host = this.ctx.helper.getIp(this.ctx.request);
@@ -28,6 +30,7 @@ class UserService extends Service {
     const data = new this.ctx.helper.Ajaxresult();
     return data.successFn(results);
   }
+
   async info() {
     const results = await this.app.mysql.get('fe_user', {
       id: this.ctx.cookies.get('userId', { encrypt: true }),
@@ -43,19 +46,22 @@ class UserService extends Service {
   async createHistory(params) {
     const { start, size } = params;
     console.log(start, size, '======');
-    console.log(typeof this.ctx.cookies.get('userId', { encrypt: true }), '=====userId');
     const user_id = this.ctx.cookies.get('userId', { encrypt: true });
-    const results = await this.app.mysql.select('fe_history', {
-      where: { user_id, operation: [ 'create' ] },
-      limit: Number(size),
-      offset: Number(start),
-    });
+    console.log(user_id, '=====userId');
+    let results;
+    if (params) {
+      results = await this.app.mysql.select('fe_history', {
+        where: { user_id, operation: [ 'create' ] },
+        limit: Number(size),
+        offset: Number(start),
+      });
+    }
     const total = await this.app.mysql.select('fe_history', {
       where: { user_id, operation: [ 'create' ] },
     });
     const data = new this.ctx.helper.Ajaxresult();
     return data.successFn({
-      list: results,
+      list: params ? results : total,
       total: total.length,
     });
   }
@@ -65,17 +71,20 @@ class UserService extends Service {
     const { start, size } = params;
     const user_id = this.ctx.cookies.get('userId', { encrypt: true });
 
-    const results = await this.app.mysql.select('fe_history', {
-      where: { user_id, operation: [ 'collect', 'cancel' ] },
-      limit: Number(size),
-      offset: Number(start),
-    });
+    let results;
+    if (params) {
+      results = await this.app.mysql.select('fe_history', {
+        where: { user_id, operation: [ 'collect', 'cancel' ] },
+        limit: Number(size),
+        offset: Number(start),
+      });
+    }
     const total = await this.app.mysql.select('fe_history', {
       where: { user_id, operation: [ 'collect', 'cancel' ] },
     });
     const data = new this.ctx.helper.Ajaxresult();
     return data.successFn({
-      list: results,
+      list: params ? results : total,
       total: total.length,
     });
   }
@@ -83,18 +92,22 @@ class UserService extends Service {
   // 操作历史
   async operationHistory(params) {
     const { start, size } = params;
-    const results = await this.app.mysql.select('fe_history', {
-      where: { user_id: this.ctx.cookies.get('userId', { encrypt: true }) },
-      limit: Number(size),
-      offset: Number(start),
-    });
+
+    let results;
+    if (params) {
+      results = await this.app.mysql.select('fe_history', {
+        where: { user_id: this.ctx.cookies.get('userId', { encrypt: true }) },
+        limit: Number(size),
+        offset: Number(start),
+      });
+    }
     const total = await this.app.mysql.select('fe_history', {
       where: { user_id: this.ctx.cookies.get('userId', { encrypt: true }) },
     });
 
     const data = new this.ctx.helper.Ajaxresult();
     return data.successFn({
-      list: results,
+      list: params ? results : total,
       total: total.length,
     });
   }

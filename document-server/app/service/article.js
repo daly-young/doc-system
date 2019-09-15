@@ -79,8 +79,9 @@ class ArticleService extends Service {
     const result_history = await this.app.mysql.insert('fe_history', {
       article_id: result.insertId,
       user_id: this.ctx.cookies.get('userId', { encrypt: true }),
-      user_name: 'daly',
+      // user_name: 'daly',
       modify_time: this.app.mysql.literals.now,
+      operation: 'create',
     });
     const success_history = result_history.affectedRows === 1;
     if (!success_history) {
@@ -103,6 +104,7 @@ class ArticleService extends Service {
     });
   }
 
+  // -----------更新文章数据--------------
   async update(params) {
     params.modify_time = this.app.mysql.literals.now;
     const result = await this.app.mysql.update('fe_article', params);
@@ -119,6 +121,7 @@ class ArticleService extends Service {
     return { success };
   }
 
+  // -----------删除文章--------------
   async delete(params) {
     const data = new this.ctx.helper.Ajaxresult();
 
@@ -141,22 +144,28 @@ class ArticleService extends Service {
 
   }
 
+  // -----------获取文章信息--------------
   async getcontent(param) {
     const user_id = Number(this.ctx.cookies.get('userId', { encrypt: true }));
     const result = await this.app.mysql.get('fe_article', param);
-    const isCollect = await this.app.mysql.get('fe_collect', {
-      article_id: param.id,
-      user_id,
-    });
+    let isCollect = false;
+    if (user_id) {
+      isCollect = await this.app.mysql.get('fe_collect', {
+        article_id: param.id,
+        user_id,
+      });
+    }
     const data = new this.ctx.helper.Ajaxresult();
     if (result) {
       result.hasRight = user_id === result.user_id;
-      result.isCollect = isCollect !== null;
+      result.isCollect = isCollect;
       return data.successFn(result);
     }
     return data.fail({ code: 10004 });
   }
 
+
+  // -----------所有文章信息--------------
   async listAll() {
     const result = await this.app.mysql.select('fe_article');
     const data = new this.ctx.helper.Ajaxresult();
@@ -166,6 +175,7 @@ class ArticleService extends Service {
     return data.fail({ code: 10004 });
   }
 
+  // -----------创建文章并插入到已有层级目录中去--------------
   async createArticle(params) {
     const data = new this.ctx.helper.Ajaxresult();
 
@@ -184,6 +194,25 @@ class ArticleService extends Service {
         msg: '创建文章失败，请重试',
       });
     }
+
+    // 创建历史记录
+    const result_history = await this.app.mysql.insert('fe_history', {
+      article_id: result.insertId,
+      user_id: this.ctx.cookies.get('userId', { encrypt: true }),
+      // user_name: 'daly',
+      modify_time: this.app.mysql.literals.now,
+      operation: 'create',
+    });
+
+    const success_history = result_history.affectedRows === 1;
+    if (!success_history) {
+      return data.fail({
+        code: 20001,
+        msg: '创建历史记录失败，请重试',
+      });
+    }
+    console.log('创建历史记录');
+
     const resultCate = await this.app.mysql.update('fe_level', {
       id: params.parentId,
       article_id: result.insertId,
@@ -196,6 +225,13 @@ class ArticleService extends Service {
       });
     }
     return data.successFn({ articleId: result.insertId, cateId: params.parentId });
+  }
+
+  // 搜索
+  async search(param) {
+    const { keywords } = param;
+    console.log(keywords, '=====keywords');
+
   }
 }
 
