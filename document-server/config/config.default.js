@@ -62,6 +62,10 @@ module.exports = appInfo => {
     credentials: true,
   };
 
+  config.assets = {
+    publicPath: '/public/',
+  };
+
   return {
     ...config,
     ...userConfig,

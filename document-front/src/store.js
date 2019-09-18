@@ -13,7 +13,7 @@ export default new Vuex.Store( {
     category: [], // 所有分类数据
     sideCategory: {}, // 当前侧边栏数据
     sideCategoryActiveIndex: '', // 侧边栏初始化序列号
-    breadNav: [], // 面包屑数组
+    // breadNav: [], // 面包屑数组
     activeIndex: '0', // 顶部导航初始话激活序列号
     articleId: -1, // 当前操作文章ID
     articleDetails: {},
@@ -87,26 +87,26 @@ export default new Vuex.Store( {
         state.user[key] = obj[key]
       }
     },
-    updateUserAside( state ) {
-      let index = state.user.activeIndex
-      let i = [1, 2]
-      state.user.tableHeader = [{
-        label: '文章',
-        value: 'article',
-        width: 500
-      }, {
-        label: '日期',
-        value: 'date',
-        width: 300
-      }]
-      if ( i.includes( index ) ) {
-        state.user.tableHeader = state.user.tableHeader.splice( 1, 0, {
-          label: '操作',
-          value: 'operation',
-          width: 200
-        } )
-      }
-    },
+    // updateUserAside( state ) {
+    //   let index = state.user.activeIndex
+    //   let i = [1, 2]
+    //   state.user.tableHeader = [{
+    //     label: '文章',
+    //     value: 'article',
+    //     width: 500
+    //   }, {
+    //     label: '日期',
+    //     value: 'date',
+    //     width: 300
+    //   }]
+    //   if ( i.includes( index ) ) {
+    //     state.user.tableHeader = state.user.tableHeader.splice( 1, 0, {
+    //       label: '操作',
+    //       value: 'operation',
+    //       width: 200
+    //     } )
+    //   }
+    // },
     // updateSideCategory( state, { firstLevelId, breadNav } ) {
     //   // 清空侧边栏数据
     //   state.sideCategory = undefined
@@ -180,13 +180,6 @@ export default new Vuex.Store( {
       getCateList().then( ( { success, result, msg } ) => {
         if ( success ) {
           // 存储列表
-          // commit( 'updateData', {
-          //   category: result,
-          //   sideCategory: result[0],
-          //   articleId: result[0].article_id,
-          //   breadNav: [result[0].label],
-          //   activeIndex: result[0].id.toString()
-          // } )
           commit( 'updateMenu', {
             menuList: result,
             curMenuItem: result[0],
@@ -194,12 +187,11 @@ export default new Vuex.Store( {
           } )
           commit( 'updateArticle', {
             articleId: result[0].article_id,
-            breadNav: [result[0].label]
+            // breadNav: [result[0].label]
           } )
           dispatch( 'getArticle' )
         } else {
           console.error( msg )
-          // this.$message.error( msg );
         }
       } )
     },
@@ -210,15 +202,12 @@ export default new Vuex.Store( {
           // 存储列表
           commit( 'updateMenu', {
             menuList: result,
-            // sideCategory: result[0],
           } )
-
           // 更新高亮ID
           const { activeTreeId } = params
           commit( 'updateTree', { activeTreeId } )
         } else {
           console.error( msg )
-          // this.$message.error( msg );
         }
       } )
     },
@@ -255,6 +244,7 @@ export default new Vuex.Store( {
               operation: operationName,
             }
           } )
+          console.log( list )
           commit( 'updateUser', {
             tableList: list,
             paginationTotal: result.total,

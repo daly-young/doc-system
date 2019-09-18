@@ -37,18 +37,18 @@ export default {
   },
   methods:{
     init() {
-      userInfo().then(({success,result,msg})=>{
-        if(success) {
+      userInfo().then( ( {success, result, msg} )=>{
+        if( success ) {
           this.userName = result.user_name
           this.character = result.character
           this.email = result.email
         }else {
-          this.$message.error(msg || '错了哦，这是一条错误消息');
+          this.$message.error( msg || '错了哦，这是一条错误消息' );
         }
-      })
+      } )
     },
     backHome() {
-      this.$router.push('/')
+      this.$router.push( '/' )
     },
   }
 }

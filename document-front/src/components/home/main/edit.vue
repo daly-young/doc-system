@@ -1,7 +1,11 @@
 <template>
 <!-- // todo: 上传图片 -->
   <div>
-    <mavon-editor v-model="value" @change="changeData"/>
+    <mavon-editor 
+      ref="editor"
+      v-model="value" 
+      @change="changeData"
+      @imgAdd="imgAdd"/>
     <el-button type="primary" @click="saveData">保存</el-button>
     <el-popover
       placement="top"
@@ -20,6 +24,9 @@
 <script>
 import { articleUpdate, articleCreateOnly } from '@/assets/js/api'
 import { mapState, mapMutations } from 'vuex';
+import axios from 'axios';
+// import qs from 'qs';
+
 export default {
   name: 'feMain',
   props: {
@@ -33,10 +40,6 @@ export default {
   },
   computed:{
     ...mapState( {
-      // articleId: state => state.articleId,
-      // articleDetails: state => state.articleDetails,
-      // selectItemIdList: state => state.selectItemIdList,
-      // breadNav: state => state.breadNav,
       article: state => state.article,
       tree: state => state.tree
     } ),
@@ -95,13 +98,11 @@ export default {
           this.updateArticle( {
             isEdit: false,
             articleId: result.articleId,
-            // curTreeKey: result.cateId
           } )
           this.updateTree( {
             activeTreeId: result.cateId
           } )
           this.$store.dispatch( 'refreshCate' )
-          // this.$store.dispatch( 'getArticle' )
         } else {
             this.$message.error( msg || '创建失败' );
         }
@@ -113,6 +114,19 @@ export default {
     cancelFn() {
       this.updateArticle( {
         isEdit: false
+      } )
+    },
+    imgAdd( pos, $file ) {
+      var formdata = new FormData();
+      formdata.append( 'image', $file );
+      axios.post( '/base/uploadImg', formdata, { headers: { 'Content-Type': 'multipart/form-data'}} ).then( ( {data} ) => {
+        const {success, result} = data
+        if( success ) {
+          this.$refs.editor.$img2Url( pos, result.url[0] );
+          console.log( this.$refs.editor )
+        } else {
+          this.$message.error( '图片上传失败~' );
+        }
       } )
     }
   }

@@ -42,11 +42,8 @@ export default {
       this.updateUser( {
         activeIndex: i
       } )
-      this.updateUserAside()
-      this.$store.dispatch( 'getUserHistory', {
-        start: 0,
-        size:12,
-      } )
+      // this.updateUserAside()
+      // this.changeTable( i )
     }
   }
 }

@@ -56,7 +56,7 @@ export default {
           required: true, 
           message: '请输入密码', 
           trigger: 'blur',
-        },{ 
+        }, { 
           min: 6, 
           max: 12, 
           message: '长度在 6 到 12 个字符', 
@@ -66,9 +66,9 @@ export default {
           required: true, 
           // message: '请输入邮箱', 
           trigger: 'blur',
-          validator: (rule,value,callback) =>{
-              let canPass =  /^[a-zA-Z0-9][\w.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\w.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z.]*[a-zA-Z]$/.test(value)
-              if(!canPass)callback(new Error('请输入正确的邮箱'));
+          validator: ( rule, value, callback ) =>{
+              let canPass =  /^[a-zA-Z0-9][\w.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\w.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z.]*[a-zA-Z]$/.test( value )
+              if( !canPass )callback( new Error( '请输入正确的邮箱' ) );
             }
         }]
       },
@@ -76,18 +76,18 @@ export default {
       user_name:'',
       password: '',
       email: '',
-      backUrl: this.$route.query.backUrl?decodeURI(this.$route.query.backUrl):''
+      backUrl: this.$route.query.backUrl ? decodeURI( this.$route.query.backUrl ) : ''
     }
   },
   methods:{
-    ...mapMutations([
+    ...mapMutations( [
       'updateData',
-    ]),
+    ] ),
     switchFn() {
       this.loginFirst = !this.loginFirst
     },
     doLoginOrReg() {
-      if(this.loginFirst) {
+      if( this.loginFirst ) {
         this.doLogin()
       }else {
         this.doReg()
@@ -95,45 +95,45 @@ export default {
     },
     doLogin() {
       let {user_name, password} = this.infos
-      userLogin({
+      userLogin( {
         user_name,
         password: password.toString()
-      }).then(({success, msg})=>{
-        if(success) {
-          if(this.backUrl) {
+      } ).then( ( {success, msg} )=>{
+        if( success ) {
+          if( this.backUrl ) {
             // console.log(this.backUrl,'=====')
             window.location.href = this.backUrl
           }else {
-            this.$router.push('/')
+            this.$router.push( '/' )
           }
-          this.updateData({
+          this.updateData( {
             isLogin: true
-          })
+          } )
         } else {
-          this.$message.error(msg);
+          this.$message.error( msg );
         }
-      })
+      } )
     },
     doReg() {
       let {user_name, password, email} = this.infos
-      userReg({
+      userReg( {
         user_name,
         password: password.toString(),
         email
-      }).then(({success, msg})=>{
-        if(success) {
-          if(this.backUrl) {
+      } ).then( ( {success, msg} )=>{
+        if( success ) {
+          if( this.backUrl ) {
             window.location.href = this.backUrl
           }else {
-            this.$router.push('/')
+            this.$router.push( '/' )
           }
-          this.updateData({
+          this.updateData( {
             isLogin: true
-          })
+          } )
         } else {
-          this.$message.error(msg);
+          this.$message.error( msg );
         }
-      })
+      } )
     }
   }
 }

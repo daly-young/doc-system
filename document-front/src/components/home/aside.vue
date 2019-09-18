@@ -19,6 +19,7 @@
 
 <script>
 import { mapMutations, mapState } from 'vuex'
+import { setTimeout } from 'timers';
 // import treeMenus from './aside-menu'
 export default {
   data() {
@@ -48,6 +49,11 @@ export default {
           let item = menuList.filter( item=>item.id === +menuId )
           console.log( item, '====menu item ' )
           this.treeList = item.length ? item[0].children : []
+          if( this.$route.query.cate === 'tree' ) {
+            this.updateTree( {
+              activeTreeId: this.$route.query.levelId
+            } )
+          }
           // this.updateTree( {
           //   curIdPath: this.treeList[0].idList,
           // } )
@@ -59,24 +65,34 @@ export default {
       handler( newVal ) {
         // console.log( this.$refs.tree, '====$refs.tree' )
         if( newVal ) {
-          this.$nextTick( ()=>{
+          // this.$nextTick( ()=>{
+          //   this.$refs.tree.setCurrentKey( newVal.toString() )
+          //   console.log( this.$refs.tree.getNode( newVal.toString() ), '=====getNode' )
+          // } )
+          setTimeout( ()=>{
             this.$refs.tree.setCurrentKey( newVal.toString() )
             console.log( this.$refs.tree.getNode( newVal.toString() ), '=====getNode' )
-            this.updateTree( {
-              curTreeItem: this.$refs.tree.getNode( newVal.toString() ).data
-            } )
-          } )
+          }, 0 )
           // this.highlightKey = newVal.activeTreeId.toString()
         }
       },
       immediate: true
+    },
+    treeList: function( newVal ) {
+      if( newVal.length ) {
+        const {cate, levelId} = this.$route.query
+          if( cate === 'tree' ) {
+            this.updateTree( {
+              activeTreeId: levelId
+            } )
+            
+          }
+      }
     }
   },
   mounted(){
+    // console.log( this.$route.query, '====query' )
     // 初始化提交，默认序列
-    // this.updateTree( {
-    //   curIdPath: this.treeList[0].idList,
-    // } )
   },
   methods: {
     ...mapMutations( [

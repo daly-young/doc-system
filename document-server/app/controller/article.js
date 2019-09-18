@@ -112,9 +112,7 @@ class ArticleController extends Controller {
     const param = ctx.query;
     try {
       ctx.validate({
-        id: { type: 'id', required: true },
-        content: { type: 'string', required: false },
-        md: { type: 'string', required: false },
+        keywords: { type: 'string', required: false },
       }, param);
     } catch (err) {
       ctx.logger.warn(err.errors);

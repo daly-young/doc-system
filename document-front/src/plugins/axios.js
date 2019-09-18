@@ -49,9 +49,10 @@ export function _get( url, params = {} ) {
   } )
 }
 
-export function _post( url, params = {} ) {
+export function _post( url, params = {}, setting ) {
   return new Promise( ( resolve, reject ) => {
-    Vue.axios.post( url, qs.stringify( params ) )
+    console.log( qs.stringify( params ) )
+    Vue.axios.post( url, qs.stringify( params ), setting )
       .then( response => {
         resolve( response.data );
       }, err => {

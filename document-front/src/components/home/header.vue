@@ -19,7 +19,7 @@
           </template>
           <!-- 搜索 -->
           <el-menu-item :index="searchIndex">
-            <input type="search" class="fe-search" v-model="keywords" placeholder="search(还没开发)">
+            <input type="search" class="fe-search" v-model="keywords" placeholder="关键字，例如：授信">
             <i class="el-icon-search" @click="searchFn"></i>
           </el-menu-item>
           <!-- 用户 -->
@@ -42,7 +42,6 @@
 </template>
 
 <script>
-import { searchAll} from '@/assets/js/api'
 import { mapMutations, mapState, mapActions } from 'vuex'
 export default {
   name: 'feHeader',
@@ -67,13 +66,30 @@ export default {
       return ( this.menu.menuList.slice( -1 ).id  + 2 ).toString()
     }
   },
+  watch:{
+    'menu.menuList':{
+      handler: function( newVal ){
+        if( newVal.length ) {
+          const {cate, levelId} = this.$route.query
+          if( cate === 'menu' ) {
+            this.$nextTick( ()=>{
+              this.updateMenu( {
+                menuId: levelId
+              } )
+            } )
+          }
+        }
+      }
+    }
+  },
   created() {
     this.init()
   },
   methods:{
     ...mapMutations( [
       'updateMenu',
-      'updateArticle'
+      'updateArticle',
+      'updateTree'
     ] ),
     ...mapActions( [
       // 'getCateListFn',
@@ -84,7 +100,11 @@ export default {
       this.$store.dispatch( 'getUser' )
 
       // 获取所有分类信息
-      this.$store.dispatch( 'getCateListFn' )
+      let param = {}
+      if( this.$route.query.cate === 'menu' ) {
+          param = {id: this.$route.query.levelId || ''}
+      }
+      this.$store.dispatch( 'getCateListFn', param )
     },
     backHome() {
       this.$router.push( '/' )
@@ -95,12 +115,26 @@ export default {
         menuId: item.id,
         curMenuItem: item
       } )
+      this.updateTree( {
+        curTreeItem: {},
+      } )
     },
     // 搜索功能
     searchFn() {
-      searchAll( {
-        keywords:  this.keywords
-      } ).then( ()=>{} )
+      const {keywords} = this
+      if( !this.keywords ) {
+        this.$message( {
+          message: '请先输入关键字',
+          type: 'warning'
+        } );
+        return
+      }
+      this.$router.push( {
+        path: '/search',
+        query: {
+          keywords
+        }
+      } )
     },
     // 创建新文章
     createFn() {

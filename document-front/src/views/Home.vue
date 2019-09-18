@@ -8,14 +8,16 @@
     </el-container>
   </el-container>
   <fe-create v-if="article.createShow"></fe-create>
+  <!-- <fe-footer></fe-footer> -->
 </el-container>
 </template>
 
 <script>
 import feHeader from '@/components/home/header.vue'
-import feAside from '@/components/home/aside'
+import feAside from '@/components/home/aside.vue'
 import feMain from '@/components/home/main'
 import feCreate from '@/components/home/create.vue'
+// import feFooter from '@/components/home/footer.vue'
 import { mapState, mapActions } from 'vuex'
 
 export default {
@@ -24,7 +26,8 @@ export default {
     feHeader,
     feAside,
     feMain,
-    feCreate
+    feCreate,
+    // feFooter
   },
   data() {
     return {}
@@ -34,14 +37,8 @@ export default {
   },
   computed:{
     ...mapState( {
-      // switchEditor: state => state.switchEditor,
       article: state => state.article,
-      // sideCategory: state => state.sideCategory
     } ),
-    // showAsideMenu() {
-    //   let { sideCategory } = this
-    //   return sideCategory && sideCategory.children && sideCategory.children.length
-    // }
   },
   methods:{
     ...mapActions( [

@@ -18,13 +18,61 @@ import { mapState } from 'vuex'
 export default {
   name: 'userList',
   data() {
-    return {}
+    return {
+      headerList: [{
+        label: '文章',
+        value: 'article',
+        width: 500
+      }, {
+        label: '日期',
+        value: 'date',
+        width: 300
+      }]
+    }
   },
   computed: {
-    ...mapState({
-      headerList: state => state.user.tableHeader,
-      list: state => state.user.tableList,
-    })
+    ...mapState( {
+      // headerList: state => state.user.tableHeader,
+      // list: state => state
+      user: state => state.user
+    } ),
+    activeIndex() {
+      return this.user.activeIndex
+    },
+    list () {
+      return this.user.tableList
+    },
+  },
+  watch: {
+    activeIndex( newVal ) {
+      console.log( newVal, '======user.activeIndex' )
+      this.changeTable( newVal )
+      this.$store.dispatch( 'getUserHistory' )
+    },
+    list( newVal ) {
+      console.log( newVal, '===user.list' )
+    }
+  },
+  methods: {
+    changeTable( i ) {
+      let ids = [1, 2]
+      this.headerList = [{
+          label: '文章',
+          value: 'article',
+          width: 500
+        }, {
+          label: '日期',
+          value: 'date',
+          width: 300
+        }]
+      if ( ids.includes( i ) ) {
+        this.headerList.push( {
+          label: '操作',
+          value: 'operation',
+          width: 200
+        } )
+      }
+    }
   }
 }
 </script>

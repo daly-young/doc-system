@@ -1,4 +1,3 @@
-// todo: 区分”今天“”昨天“
 <template>
   <el-popover
     class="fe-history"
@@ -9,12 +8,13 @@
     <el-table :data="gridData">
       <el-table-column width="200" property="user_name" label="姓名"></el-table-column>
       <el-table-column width="200" property="modify_time" label="日期"></el-table-column>
-      <!-- <el-table-column width="300" property="address" label="地址"></el-table-column> -->
     </el-table>
     <el-button slot="reference" icon="el-icon-notebook-2" type="primary" plain circle  @click="popShow"></el-button>
   </el-popover>
 </template>
+
 <script>
+// todo: 区分”今天“”昨天“
 import { mapState } from 'vuex'
 import { getHistory } from '@/assets/js/api'
 

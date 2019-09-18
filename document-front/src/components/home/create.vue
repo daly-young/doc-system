@@ -50,8 +50,6 @@ export default {
   },
   computed:{
     ...mapState( {
-      // sideCategory: state => state.sideCategory,
-      // selectItemIdList: state => state.selectItemIdList,
       menu: state => state.menu,
       tree: state => state.tree,
     } ),
@@ -64,7 +62,6 @@ export default {
       console.log( this.tree.curTreeItem, '=====create treeItem' )
       console.log( this.tree.curTreeItem.idList )
       this.defaultIds = this.tree.curTreeItem.idList || this.menu.curMenuItem.idList
-      // this.defaultIds = [4, 18, 113, 146]
       this.pathArr = this.tree.curTreeItem.path || this.menu.curMenuItem.path
     } )
   },
@@ -100,7 +97,6 @@ export default {
       const folders = this.newFolder.split( '/' ).filter( Boolean ).join( ',' )
       console.log( this.defaultIds, '=======this.defaultIds' )
       const parentId = this.defaultIds.slice( -1 ).toString()
-      // const pathArr = this.pathArr.join( ',' )
       articleCreate( {
         parentId,
         folders,
@@ -116,20 +112,9 @@ export default {
           this.pathArr = [...this.pathArr, ...this.newFolder.split( '/' )]
           this.pathArr.push( this.articleTitle )
 
-          // 更新一级目录
-          // this.updateSideCategory( {
-          //   firstLevelId: this.defaultIds[0].toString()
-          // } )
-
           // 更新数据
           this.updateData( {
             createShow: false,
-            // switchEditor: true,
-            // articleId: result.article_id,
-            // curTreeKey: result.id,
-            // breadNav: this.pathArr,
-            // articleDetails: {},
-            // activeIndex: this.defaultIds[0].toString()
           } )
           this.updateArticle( {
             isEdit: true,
@@ -137,18 +122,11 @@ export default {
             details: {},
             createShow: false,
           } )
-          // this.updateTree( {
-          //   activeTreeId: result.id
-          // } )
+
           // 更新一级目录
           this.updateMenu( {
             menuId: this.defaultIds[0].toString()
           } )
-
-          // const {idList, path} = this.tree.curTreeItem
-          // this.updateTree( {
-          //   curTreeItem: result
-          // } )
 
           // 更新tree之后再点亮当前选中
           this.$store.dispatch( 'refreshCate', {activeTreeId: id} )

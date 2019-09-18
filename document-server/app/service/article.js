@@ -229,8 +229,25 @@ class ArticleService extends Service {
 
   // 搜索
   async search(param) {
+    const data = new this.ctx.helper.Ajaxresult();
     const { keywords } = param;
-    console.log(keywords, '=====keywords');
+    // console.log(keywords, '=====keywords');
+    const result = await this.app.mysql.query('SELECT * FROM fe_article WHERE md LIKE "%' + keywords + '%";');
+    const newList = [];
+    if (result.length) {
+      // console.log(typeof result);
+      for (const item of result) {
+        const level = await this.app.mysql.get('fe_level', { article_id: item.id });
+        if (level) {
+          item.levelId = level.id;
+          item.parentId = level.parent_id;
+          newList.push(item);
+        }
+        // console.log(item.parentId);
+      }
+    }
+    // console.log(result);
+    return data.successFn(newList.length ? newList : result);
 
   }
 }
