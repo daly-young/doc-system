@@ -4,24 +4,20 @@ const { transliterate } = require('transliteration');
 
 class ArticleService extends Service {
   async create(params) {
+    console.log(22222222);
     const data = new this.ctx.helper.Ajaxresult();
-    const { articleTitle, parentId, folders } = params;
-    // 路径ID信息
-    // const parentIdArr = parentId.split(',').map(item => Number(item));
-    // 新增文件夹
+    const { articleTitle, id, folders, menuId } = params;
     const foldersArr = folders.split(',');
-    // 路径展示信息
-    // const newPathArr = pathArr.split(',');
 
     // -------------创建文件夹&&文章-------------------
     const idList = [];
     if (folders) {
-      // const folderArr = folders.split(',');
-      // console.log(folderArr);
       for (let i = 0; i < foldersArr.length; i++) {
         // 创建目录
-        const resultLevel = await this.app.mysql.insert('fe_level', {
-          parent_id: idList.slice(-1).toString() || parentId,
+        // id=-1的时候，默认存0，认为在tree根目录
+        const resultLevel = await this.app.mysql.insert('fe_tree', {
+          parent_id: idList.slice(-1).toString() || (+id === -1 ? 0 : id),
+          menu_id: menuId,
           creator: this.ctx.cookies.get('userId', { encrypt: true }),
           title: foldersArr[i],
           value: transliterate(foldersArr[i]),
@@ -32,7 +28,7 @@ class ArticleService extends Service {
     }
 
     // 声明下面用的parentID
-    const newParentId = idList.slice(-1).toString() || parentId;
+    const newParentId = idList.slice(-1).toString() || id;
     console.log(newParentId, '====newParentId');
     console.log(idList, '=====idList');
     // 创建文章
@@ -50,21 +46,22 @@ class ArticleService extends Service {
       });
     }
 
-    console.log('chuangjianchenggong');
+    // console.log('chuangjianchenggong');
 
     // 创建目录，有lastId，说明有新文件夹，用新的文件夹
-    // const { insertId } = result;
     // console.log(idList, typeof idList, '===lastId');
-    // const pid = idList.slice(-1) || parentId.slice(-1);
     // console.log(pid);
-    const resultLevel = await this.app.mysql.insert('fe_level', {
+    console.log(menuId, '=======menuID');
+    const resultLevel = await this.app.mysql.insert('fe_tree', {
       parent_id: newParentId,
+      menu_id: menuId,
       creator: this.ctx.cookies.get('userId', { encrypt: true }),
       title: articleTitle,
       article_id: result.insertId,
       value: transliterate(articleTitle),
       modify_time: this.app.mysql.literals.now,
     });
+
     const successLevel = resultLevel.affectedRows === 1;
     if (!successLevel) {
       return data.fail({
@@ -96,11 +93,6 @@ class ArticleService extends Service {
     return data.successFn({
       article_id: result.insertId,
       id: resultLevel.insertId,
-      // child_count: 0,
-      // idList: [ ...parentIdArr, ...idList, resultLevel.insertId ],
-      // label: articleTitle,
-      // parentId: newParentId,
-      // path: [ ...newPathArr, ...foldersArr, articleTitle ],
     });
   }
 
@@ -129,7 +121,7 @@ class ArticleService extends Service {
       id: params.id,
     });
 
-    const result_cate = await this.app.mysql.delete('fe_level', {
+    const result_cate = await this.app.mysql.delete('fe_tree', {
       article_id: params.id,
     });
 
@@ -213,18 +205,19 @@ class ArticleService extends Service {
     }
     console.log('创建历史记录');
 
-    const resultCate = await this.app.mysql.update('fe_level', {
-      id: params.parentId,
+
+    const resultCate = await this.app.mysql.update(`fe_${params.type}`, {
+      id: params.id,
       article_id: result.insertId,
     });
 
     if (resultCate.affectedRows !== 1) {
       return data.fail({
         code: 20001,
-        msg: '链接目录，请重试',
+        msg: '无法链接目录，请重试',
       });
     }
-    return data.successFn({ articleId: result.insertId, cateId: params.parentId });
+    return data.successFn({ articleId: result.insertId, cateId: params.id });
   }
 
   // 搜索
@@ -237,17 +230,24 @@ class ArticleService extends Service {
     if (result.length) {
       // console.log(typeof result);
       for (const item of result) {
-        const level = await this.app.mysql.get('fe_level', { article_id: item.id });
-        if (level) {
-          item.levelId = level.id;
-          item.parentId = level.parent_id;
+        const tree = await this.app.mysql.get('fe_tree', { article_id: item.id });
+        const menu = await this.app.mysql.get('fe_menu', { article_id: item.id });
+        if (tree) {
+          item.levelId = tree.id;
+          item.parentId = tree.parent_id;
+          item.menuId = tree.menu_id;
+          newList.push(item);
+        } else if (menu) {
+          item.levelId = '';
+          item.parentId = '';
+          item.menuId = menu.id;
           newList.push(item);
         }
         // console.log(item.parentId);
       }
     }
     // console.log(result);
-    return data.successFn(newList.length ? newList : result);
+    return data.successFn(newList);
 
   }
 }

@@ -7,6 +7,7 @@ class HistoryService extends Service {
       where: { article_id: param.id },
       limit: 0,
     });
+
     const data = new this.ctx.helper.Ajaxresult();
     return data.successFn(results);
   }

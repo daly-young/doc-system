@@ -4,14 +4,14 @@ const Controller = require('egg').Controller;
 
 class ArticleController extends Controller {
   async create() {
+    console.log(2222222);
     const { ctx } = this;
     const param = ctx.request.body;
     try {
       ctx.validate({
-        // first_cate: { type: 'string', require: false, default: '' },
         articleTitle: { type: 'string', require: true },
-        parentId: { type: 'string', require: true },
-        // pathArr: { type: 'string', require: true },
+        // id: { type: 'id', require: false },
+        menuId: { type: 'id', require: true },
       }, param);
     } catch (err) {
       ctx.logger.warn(err.errors);
@@ -30,7 +30,7 @@ class ArticleController extends Controller {
     try {
       ctx.validate({
         articleTitle: { type: 'string', require: true },
-        parentId: { type: 'string', require: true },
+        id: { type: 'string', require: true },
       }, param);
     } catch (err) {
       ctx.logger.warn(err.errors);

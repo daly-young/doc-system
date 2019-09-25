@@ -59,10 +59,21 @@ class UserService extends Service {
     const total = await this.app.mysql.select('fe_history', {
       where: { user_id, operation: [ 'create' ] },
     });
+
+    const arr = params ? results : total;
+    const newList = [];
+    for (const item in arr) {
+      const article_name = await this.app.mysql.get('fe_article', { id: item.article_id });
+      if (article_name) {
+        item.article_name = article_name;
+        newList.push(item);
+      }
+    }
+
     const data = new this.ctx.helper.Ajaxresult();
     return data.successFn({
-      list: params ? results : total,
-      total: total.length,
+      list: newList,
+      total: newList.length,
     });
   }
 
@@ -82,10 +93,22 @@ class UserService extends Service {
     const total = await this.app.mysql.select('fe_history', {
       where: { user_id, operation: [ 'collect', 'cancel' ] },
     });
+
+
+    const arr = params ? results : total;
+    const newList = [];
+    for (const item in arr) {
+      const article_name = await this.app.mysql.get('fe_article', { id: item.article_id });
+      if (article_name) {
+        item.article_name = article_name;
+        newList.push(item);
+      }
+    }
+
     const data = new this.ctx.helper.Ajaxresult();
     return data.successFn({
-      list: params ? results : total,
-      total: total.length,
+      list: newList,
+      total: newList.length,
     });
   }
 
@@ -105,10 +128,20 @@ class UserService extends Service {
       where: { user_id: this.ctx.cookies.get('userId', { encrypt: true }) },
     });
 
+    const arr = params ? results : total;
+    const newList = [];
+    for (const item in arr) {
+      const article_name = await this.app.mysql.get('fe_article', { id: item.article_id });
+      if (article_name) {
+        item.article_name = article_name;
+        newList.push(item);
+      }
+    }
+
     const data = new this.ctx.helper.Ajaxresult();
     return data.successFn({
-      list: params ? results : total,
-      total: total.length,
+      list: newList,
+      total: newList.length,
     });
   }
 }
