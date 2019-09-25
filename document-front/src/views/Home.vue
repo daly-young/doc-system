@@ -33,7 +33,7 @@ export default {
     return {}
   },
   created() {
-    this.$store.dispatch( 'getCateListFn' )
+    this.$store.dispatch( 'getMenuFn' )
   },
   computed:{
     ...mapState( {
@@ -42,7 +42,7 @@ export default {
   },
   methods:{
     ...mapActions( [
-      'getCateListFn',
+      'getMenuFn',
     ] ),
   }
 }

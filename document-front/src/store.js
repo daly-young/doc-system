@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { getContent, getCateList, userCreateHistory, userCollectHistory, userOperationHistory, userInfo } from '@/assets/js/api'
+import { getContent, getMenu, getTree, userCreateHistory, userCollectHistory, userOperationHistory, userInfo } from '@/assets/js/api'
 
 Vue.use( Vuex )
 
@@ -13,7 +13,6 @@ export default new Vuex.Store( {
     category: [], // 所有分类数据
     sideCategory: {}, // 当前侧边栏数据
     sideCategoryActiveIndex: '', // 侧边栏初始化序列号
-    // breadNav: [], // 面包屑数组
     activeIndex: '0', // 顶部导航初始话激活序列号
     articleId: -1, // 当前操作文章ID
     articleDetails: {},
@@ -24,13 +23,15 @@ export default new Vuex.Store( {
     menu: {
       menuId: '', // 根目录ID，String
       menuList: [],
+      // flatMenuList: [], // 拍平的数组
       userName: '',
       curMenuItem: {}
     },
     tree: {
       activeTreeId: '', // 选中treeItemID， String
       curTreeItem: {},
-      curIdPath: [],
+      // curIdPath: [],
+      treeList: {}, // 根据目录ID存储
     },
     article: {
       articleId: '', // 当前展示文章ID
@@ -61,12 +62,6 @@ export default new Vuex.Store( {
         state[key] = obj[key]
       }
     },
-    // 更新当前文章信息
-    // updateArticle( state, obj ) {
-    //   for ( let key in obj ) {
-    //     state.articleDetails[key] = obj[key]
-    //   }
-    // },
     updateArticle( state, obj ) {
       for ( let key in obj ) {
         state.article[key] = obj[key]
@@ -87,49 +82,6 @@ export default new Vuex.Store( {
         state.user[key] = obj[key]
       }
     },
-    // updateUserAside( state ) {
-    //   let index = state.user.activeIndex
-    //   let i = [1, 2]
-    //   state.user.tableHeader = [{
-    //     label: '文章',
-    //     value: 'article',
-    //     width: 500
-    //   }, {
-    //     label: '日期',
-    //     value: 'date',
-    //     width: 300
-    //   }]
-    //   if ( i.includes( index ) ) {
-    //     state.user.tableHeader = state.user.tableHeader.splice( 1, 0, {
-    //       label: '操作',
-    //       value: 'operation',
-    //       width: 200
-    //     } )
-    //   }
-    // },
-    // updateSideCategory( state, { firstLevelId, breadNav } ) {
-    //   // 清空侧边栏数据
-    //   state.sideCategory = undefined
-    //   // 清空面包屑数据
-    //   // state.breadNav = []
-    //   // 重置侧边栏激活序列号
-    //   state.sideCategoryActiveIndex = ''
-    //   state.selectIndex = ''
-    //   state.articleDetails = {}
-
-    //   // 查找赋值
-    //   state.firstLevelId = firstLevelId
-    //   const list = state.category.find( ( { id } ) => id === firstLevelId )
-    //   state.sideCategory = list ? list : undefined
-    //   console.log( state.sideCategory, '===side' )
-
-    //   // 更新面包屑
-    //   state.breadNav = breadNav || []
-    // },
-    // updateSideActive( state, { sideCategoryActiveIndex } ) {
-    //   if ( state.sideCategoryActiveIndex != '' ) return
-    //   state.sideCategoryActiveIndex = sideCategoryActiveIndex
-    // },
   },
   actions: {
     getArticle( { commit, state } ) {
@@ -175,19 +127,21 @@ export default new Vuex.Store( {
 
       } )
     },
-    getCateListFn( { commit, dispatch } ) {
+    getMenuFn( { commit, dispatch } ) {
+
       // 初始化一级列表数据
-      getCateList().then( ( { success, result, msg } ) => {
+      getMenu().then( ( { success, result, msg } ) => {
         if ( success ) {
+          // const list = flatten( result )
           // 存储列表
           commit( 'updateMenu', {
             menuList: result,
+            // flatMenuList: list,
             curMenuItem: result[0],
             menuId: result[0].id
           } )
           commit( 'updateArticle', {
             articleId: result[0].article_id,
-            // breadNav: [result[0].label]
           } )
           dispatch( 'getArticle' )
         } else {
@@ -195,22 +149,54 @@ export default new Vuex.Store( {
         }
       } )
     },
-    refreshCate( { commit }, params ) {
-      // 初始化一级列表数据
-      getCateList().then( ( { success, result, msg } ) => {
+    getTreeFn( { commit, state }, params ) {
+      // const flatten = ( data, level = 0 ) => {
+      //   return data.reduce( ( prev, { children = [], ...rest } ) => {
+      //     return [
+      //       ...prev,
+      //       {
+      //         ...rest
+      //       },
+      //       ...flatten( children, level + 1 )
+      //     ]
+      //   }, [] )
+      // }
+      getTree( {
+        id: state.menu.menuId
+      } ).then( ( { success, result, msg } ) => {
         if ( success ) {
-          // 存储列表
-          commit( 'updateMenu', {
-            menuList: result,
+          commit( 'updateTree', {
+            treeList: {
+              [state.menu.menuId]: result
+            }
           } )
-          // 更新高亮ID
-          const { activeTreeId } = params
-          commit( 'updateTree', { activeTreeId } )
+          if ( params ) {
+            // 更新高亮ID
+            const { activeTreeId } = params
+            commit( 'updateTree', { activeTreeId } )
+          }
         } else {
-          console.error( msg )
+          console.log( msg )
         }
       } )
     },
+    // 创建之后刷新treeData
+    // refreshCate( { commit }, params ) {
+    //   // 初始化一级列表数据
+    //   getMenu().then( ( { success, result, msg } ) => {
+    //     if ( success ) {
+    //       // 存储列表
+    //       commit( 'updateMenu', {
+    //         menuList: result,
+    //       } )
+    //       // 更新高亮ID
+    //       const { activeTreeId } = params
+    //       commit( 'updateTree', { activeTreeId } )
+    //     } else {
+    //       console.error( msg )
+    //     }
+    //   } )
+    // },
     getUserHistory( { commit, state }, params ) {
       let index = state.user.activeIndex
       let ajaxFunction = userCreateHistory

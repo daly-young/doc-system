@@ -1,5 +1,4 @@
 <template>
-<!-- // todo: 上传图片 -->
   <div>
     <mavon-editor 
       ref="editor"
@@ -25,32 +24,35 @@
 import { articleUpdate, articleCreateOnly } from '@/assets/js/api'
 import { mapState, mapMutations } from 'vuex';
 import axios from 'axios';
-// import qs from 'qs';
 
 export default {
   name: 'feMain',
-  props: {
-  },
   data(){
     return {
-      render:'',
+      render:'', // 渲染后的内容
       cancelBoxShow: false,
-      value: ''
+      value: '' // 默认展示
     }
   },
   computed:{
     ...mapState( {
       article: state => state.article,
-      tree: state => state.tree
+      tree: state => state.tree,
+      menu: state => state.menu
     } ),
     articleId() {
       return this.article.articleId
     },
-    curTreeItem() {
-      return this.tree.curTreeItem
-    }
+    curItem() {
+      return this.isMenuNow ? this.menu.curMenuItem :  this.tree.curTreeItem
+    },
+    // 如果activeTreeId为空，说明当前操作的是menu对象一级目录
+    isMenuNow() {
+      return this.tree.activeTreeId === ''
+    },
   },
   created() {
+    // 读取默认已存数据
     this.value = this.article.details.md || ''
   },
   methods:{
@@ -87,8 +89,9 @@ export default {
     },
     createFn() {
       articleCreateOnly( {
-        parentId: this.curTreeItem.id,
-        articleTitle: this.curTreeItem.label,
+        id: this.curItem.id,
+        type: this.isMenuNow ? 'menu' : 'tree',
+        articleTitle: this.curItem.label,
         content: this.render,
         md: this.value
       } ).then( ( {success, result, msg} )=>{
@@ -99,10 +102,14 @@ export default {
             isEdit: false,
             articleId: result.articleId,
           } )
-          this.updateTree( {
-            activeTreeId: result.cateId
-          } )
-          this.$store.dispatch( 'refreshCate' )
+          if( this.isMenuNow ) {
+            this.$store.dispatch( 'getMenuFn' )
+          }else {
+            this.updateTree( {
+              activeTreeId: result.cateId
+            } )
+            this.$store.dispatch( 'getTreeFn' )
+          }
         } else {
             this.$message.error( msg || '创建失败' );
         }

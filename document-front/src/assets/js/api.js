@@ -1,18 +1,14 @@
 
 import { _get, _post, _put, _delete } from '@/plugins/axios'
-// // 获取一级列表 无需参数
-// export const getFirstList = () => {
-//   return _get('/list')
-// }
 
-// // 获取二级列表，参数为一级列表ID
-// export const getSecondList = (params) => {
-//   return _get('/list/getSecond', { params })
-// }
+// 获取当前所有一级目录
+export const getMenu = () => {
+  return _get( '/list/menu' )
+}
 
-// 获取当前所有分类
-export const getCateList = ( params ) => {
-  return _get( '/list/category', { params } )
+// 获取当前目录下所有项目
+export const getTree = ( params ) => {
+  return _get( '/list/tree', { params } )
 }
 
 // 获取当前所有文件夹

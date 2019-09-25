@@ -19,7 +19,7 @@
           </template>
           <!-- 搜索 -->
           <el-menu-item :index="searchIndex">
-            <input type="search" class="fe-search" v-model="keywords" placeholder="关键字，例如：授信">
+            <input type="search" class="fe-search" v-model="keywords" placeholder="关键字，例如：授信" @keyup.enter="searchFn">
             <i class="el-icon-search" @click="searchFn"></i>
           </el-menu-item>
           <!-- 用户 -->
@@ -48,7 +48,8 @@ export default {
   data() {
     return {
       keywords: '',
-    }
+      searchObj: {}
+      }
   },
   computed: {
     ...mapState( {
@@ -60,30 +61,28 @@ export default {
       isLogin: state =>state.isLogin
     } ),
     searchIndex() {
-      return ( this.menu.menuList.slice( -1 ).id + 1 ).toString()
+      return ( this.menu.menuList.length + 1 ).toString()
     },
     userIndex() {
-      return ( this.menu.menuList.slice( -1 ).id  + 2 ).toString()
+      return ( this.menu.menuList.length  + 2 ).toString()
     }
   },
   watch:{
     'menu.menuList':{
       handler: function( newVal ){
-        if( newVal.length ) {
-          const {cate, levelId} = this.$route.query
-          if( cate === 'menu' ) {
-            this.$nextTick( ()=>{
-              this.updateMenu( {
-                menuId: levelId
-              } )
-            } )
-          }
+        console.log( newVal, '=====newval' )
+        if( newVal.length && this.searchObj ) {
+          this.updateMenu( {
+            menuId: this.searchObj.menuId
+          } )
         }
+        this.$store.dispatch( 'getTreeFn' )
       }
     }
   },
   created() {
     this.init()
+    this.searchObj = JSON.parse( sessionStorage.getItem( 'dalydoc_search' ) )
   },
   methods:{
     ...mapMutations( [
@@ -92,7 +91,7 @@ export default {
       'updateTree'
     ] ),
     ...mapActions( [
-      // 'getCateListFn',
+      // 'getMenuFn',
       // 'getUser'
     ] ),
     init() {
@@ -100,24 +99,33 @@ export default {
       this.$store.dispatch( 'getUser' )
 
       // 获取所有分类信息
-      let param = {}
-      if( this.$route.query.cate === 'menu' ) {
-          param = {id: this.$route.query.levelId || ''}
-      }
-      this.$store.dispatch( 'getCateListFn', param )
+      // let param = {}
+      // if( this.$route.query.cate === 'menu' ) {
+      //     param = {id: this.$route.query.levelId || ''}
+      // }
+      // this.$store.dispatch( 'getMenuFn', param )
     },
     backHome() {
       this.$router.push( '/' )
     },
     // 切换选项
     changeList( item ) {
+      // 提交当一级目录数据
       this.updateMenu( {
         menuId: item.id,
         curMenuItem: item
       } )
+      // 重置树形菜单数据
       this.updateTree( {
         curTreeItem: {},
+        activeTreeId: '',
       } )
+      // 提交请求article信息
+      this.updateArticle( {
+        articleId: item.article_id
+      } )
+      // 获取当前一级目录下树形图数据
+      this.$store.dispatch( 'getTreeFn' )
     },
     // 搜索功能
     searchFn() {
@@ -171,13 +179,8 @@ export default {
   height: 60px;
 }
 .el-row {
-  // position: fixed;
-  // top: 0;
-  // left: 0;
-  // width: 100%;
   height: 60px;
   overflow: hidden;
-  // padding-left:20px ;
   .fe-title {
     font-size: 24px;
     font-weight: bold;
@@ -205,7 +208,6 @@ a {
   margin-right: 20px !important;
 }
 .fe-headerRight ul{
-  // justify-content: flex-end;
   text-align: right;
 }
 </style>

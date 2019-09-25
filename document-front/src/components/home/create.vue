@@ -1,14 +1,15 @@
 <template>
   <div class="fe-create">
     <i class="el-icon-circle-close" @click="closeFn"></i>
-    <div class="fe-create-content" v-if="options.length">
+    <div class="fe-create-content">
        <!-- new -->
       <div class="fe-create-input">
         <span>选择路径：</span>
         <el-cascader
-          v-model="defaultIds"
+          v-model="pathArr"
           :options="options"
           :props="props"
+          clearable
           @change="handleChange"
           ref="myCascader"></el-cascader>
       </div>
@@ -32,7 +33,7 @@
   </div>
 </template>
 <script>
-import { articleCreate, getFolders } from '@/assets/js/api'
+import { articleCreate } from '@/assets/js/api'
 import { mapMutations, mapState } from 'vuex'
 
 export default {
@@ -40,11 +41,11 @@ export default {
     return {
       articleTitle:'', // 新建文章名称
       props: {
-        checkStrictly: true
+        checkStrictly: true // 只有点击三角箭头才收起目录
       },
-      options: [],
-      newFolder: '',
-      pathArr: [], // 文章路径信息
+      // options: [],
+      newFolder: '', // 新建文件夹
+      pathArr: [], // 文章路径信息 ['yunwei','fabu'] 里面是value
       defaultIds: [] // 当前选中ID序列
     }
   },
@@ -53,38 +54,49 @@ export default {
       menu: state => state.menu,
       tree: state => state.tree,
     } ),
+    options() {
+      return this.tree.treeList[this.menu.menuId]
+    }
   },
   created() {
     this.init()
   },
   mounted(){
     this.$nextTick( ()=>{
-      console.log( this.tree.curTreeItem, '=====create treeItem' )
-      console.log( this.tree.curTreeItem.idList )
-      this.defaultIds = this.tree.curTreeItem.idList || this.menu.curMenuItem.idList
-      this.pathArr = this.tree.curTreeItem.path || this.menu.curMenuItem.path
+      // console.log( this.tree.curTreeItem, '=====create treeItem' )
+      // console.log( this.tree.curTreeItem.idList )
+      // 默认展示路径
+      this.defaultIds = this.tree.curTreeItem.idList || []
+      // console.log( this.defaultIds )
+      this.pathArr = this.tree.curTreeItem.pathVal || []
     } )
   },
   methods:{
     ...mapMutations( [
       'updateData',
-      'updateSideCategory',
+      // 'updateSideCategory',
       'updateMenu',
       'updateTree',
       'updateArticle'
     ] ),
     init() {
       // 获取所有文件夹
-      getFolders().then( ( {success, result} )=>{
-        if( success ) {
-          this.options = result
-        }
-      } )
+      // getFolders().then( ( {success, result} )=>{
+      //   if( success ) {
+      //     this.options = result
+      //   }
+      // } )
     },
     // 选择路径信息展示
     handleChange( value ) {
-      this.defaultIds = value
-      this.pathArr = this.$refs.myCascader.getCheckedNodes()[0].pathLabels
+      if( !value ) return
+      if( !value.length ) {
+        this.defaultIds = []
+        return
+      }
+      console.log( value, value.length, '====' )
+      const myCascader = this.$refs.myCascader.getCheckedNodes()
+      this.defaultIds = myCascader && myCascader[0].data.idList
     },
     createFn() {
       // 没有文章不创建
@@ -96,22 +108,20 @@ export default {
       // 数组=》去空=》转字符串
       const folders = this.newFolder.split( '/' ).filter( Boolean ).join( ',' )
       console.log( this.defaultIds, '=======this.defaultIds' )
-      const parentId = this.defaultIds.slice( -1 ).toString()
+      let id = -1
+      if( this.defaultIds ) {
+        id = this.defaultIds.splice( -1 )
+      }
       articleCreate( {
-        parentId,
+        id,
         folders,
-        // pathArr,
         articleTitle: this.articleTitle,
+        menuId: this.menu.menuId,
       } ).then( ( {success, result, msg} )=>{
         if( success ) {
           const {id, article_id} = result
 
           // 关闭创建面板=》修改默认id序列=》提交生成文章的ID=》调出编辑面板
-          // console.log( result )
-          // 更新面包屑
-          this.pathArr = [...this.pathArr, ...this.newFolder.split( '/' )]
-          this.pathArr.push( this.articleTitle )
-
           // 更新数据
           this.updateData( {
             createShow: false,
@@ -123,13 +133,8 @@ export default {
             createShow: false,
           } )
 
-          // 更新一级目录
-          this.updateMenu( {
-            menuId: this.defaultIds[0].toString()
-          } )
-
           // 更新tree之后再点亮当前选中
-          this.$store.dispatch( 'refreshCate', {activeTreeId: id} )
+          this.$store.dispatch( 'getTreeFn', { activeTreeId: id } )
         } else {
             this.$message.error( msg || '创建失败' );
         }

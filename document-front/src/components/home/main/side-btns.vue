@@ -23,9 +23,15 @@ export default {
     articleId() {
       return this.article.articleId
     },
+    // 如果activeTreeId为空，说明当前操作的是menu对象一级目录
+    isMenuNow() {
+      return this.tree.activeTreeId === ''
+    },
     showDelete() {
+      // console.log( this.article.details.hasRight, this.tree.curTreeItem.children_count )
+      // 如果是一级目录，直接返回false，之后后台管理员才可以删除
+      if( this.isMenuNow ) return
       // 只有是本人创建，并且没有子集的才可以删除
-      console.log( this.article.details.hasRight, this.tree.curTreeItem.children_count )
       return this.article.details.hasRight && !this.tree.curTreeItem.children_count
     }
   },
