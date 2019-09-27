@@ -3,6 +3,7 @@
     <bread-nav></bread-nav>
     <template v-if="isNormal">
       <normal></normal>
+      <!-- <card></card> -->
       <side-btns></side-btns>
     </template>
     <edit v-else></edit>
@@ -14,6 +15,7 @@ import breadNav from './breadnav'
 import normal from './normal'
 import edit from './edit'
 import sideBtns from './side-btns'
+// import card from './card'
 import { mapState } from 'vuex';
 
 export default {
@@ -21,7 +23,8 @@ export default {
     normal,
     edit,
     breadNav,
-    sideBtns
+    sideBtns,
+    // card
   },
   computed: {
     ...mapState( {
